@@ -1,0 +1,58 @@
+@charset "UTF-8";
+:root {
+  --bg: #0b0b0b;
+  --card: #181818;
+  --text: #eee;
+  --accent: #1db954;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 980px;
+}
+
+.track-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.track-card + .track-card {
+  margin-top: 10px;
+}
+
+.cover {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.artist {
+  opacity: .8;
+  font-size: 0.95rem;
+}
+
+.rank {
+  width: 36px;
+  text-align: center;
+  font-weight: 700;
+  opacity: .7;
+}
+
+a.link {
+  color: var(--accent);
+  text-decoration: none;
+}
+a.link:hover { text-decoration: underline; }
