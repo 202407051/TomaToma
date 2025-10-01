@@ -1,0 +1,187 @@
+
+/* 0) 기본 리셋 & 변수 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif; line-height: 1.4; color: #111; background: #fff; }
+
+/* 토마토 테마 */
+:root{
+  --tt-tomato: #ff4d3a;         /* 메인 */
+  --tt-tomato-600:#e13e2e;
+  --tt-ink: #16181c;            /* 본문 글자 */
+  --tt-muted: #6b7280;
+  --tt-bg: #ffffff;
+  --tt-card: #ffffff;
+  --tt-border: #e5e7eb;
+}
+:root.dark{
+  --tt-ink: #e5e7eb;
+  --tt-muted: #9ca3af;
+  --tt-bg: #0b0c0f;
+  --tt-card: #121318;
+  --tt-border: #23262d;
+}
+
+/* 스크린리더 전용 */
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;}
+
+body{ background: var(--tt-bg); color: var(--tt-ink); }
+
+/* 1) 헤더 레이아웃 */
+.tt-header{
+  position: sticky; top: 0; z-index: 50;
+  background: var(--tt-card);
+  border-bottom: 1px solid var(--tt-border);
+}
+.tt-wrap{
+  max-width: 1100px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 160px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+/* 로고 */
+.tt-logo{ display:flex; align-items: center; gap:10px; text-decoration:none; }
+.tt-logo img{ height:28px; display:block; }
+.tt-logo.text .tt-logo-text{ display:inline; }
+.tt-logo-text{ display:none; font-weight:800; font-size:20px; color: var(--tt-ink); }
+.tt-logo:hover .tt-logo-text{ color: var(--tt-tomato); }
+
+/* 내비게이션 */
+.tt-nav ul{ list-style:none; display:flex; gap:18px; }
+.tt-nav a{
+  text-decoration:none; color: var(--tt-ink); font-weight:600; padding:8px 6px;
+  border-radius: 8px;
+}
+.tt-nav li.active a,
+.tt-nav a:hover{ color:#fff; background: var(--tt-tomato); }
+
+/* 검색 */
+.tt-search{ display:flex; align-items:center; gap:8px; justify-self: end; }
+.tt-search input{
+  width: 260px; height: 36px; border:1px solid var(--tt-border); background: var(--tt-bg);
+  color: var(--tt-ink); border-radius:10px; padding:0 12px; outline:none;
+}
+.tt-search input::placeholder{ color: var(--tt-muted); }
+.tt-search button{
+  height: 36px; padding: 0 14px; border: none; border-radius: 10px;
+  background: var(--tt-tomato); color:#fff; font-weight:700; cursor:pointer;
+}
+.tt-search button:hover{ background: var(--tt-tomato-600); }
+
+/* 토글 버튼들 */
+.tt-dark-toggle,
+.tt-menu-toggle{
+  height:36px; min-width:36px; padding:0 10px;
+  border:1px solid var(--tt-border); background: var(--tt-card);
+  color: var(--tt-ink); border-radius:10px; cursor:pointer;
+}
+.tt-dark-toggle[aria-pressed="true"]{ border-color: var(--tt-tomato); }
+
+/* 모바일 내비 */
+.tt-menu-toggle{ display:none; }       /* 데스크탑 기본 숨김 */
+.tt-nav-mobile{ display:none; border-top:1px solid var(--tt-border); background: var(--tt-card); }
+.tt-nav-mobile ul{ list-style:none; padding:10px 16px; }
+.tt-nav-mobile li+li{ margin-top:6px; }
+.tt-nav-mobile a{ display:block; padding:10px 12px; text-decoration:none; color:var(--tt-ink); border-radius:8px; }
+.tt-nav-mobile li.active a,
+.tt-nav-mobile a:hover{ background:var(--tt-tomato); color:#fff; }
+
+/* 2) 메인 영역 공통 */
+.tt-main{ max-width:1100px; margin: 28px auto; padding: 0 16px; }
+
+/* 3) 반응형 */
+@media (max-width: 960px){
+  .tt-wrap{
+    grid-template-columns: 1fr auto auto;   /* 로고, 검색, 버튼 */
+  }
+  .tt-logo{ justify-self: start; }
+  .tt-nav{ display:none; }                  /* 데스크탑 내비 감춤 */
+  .tt-menu-toggle{ display:inline-block; }
+  .tt-search input{ width: 180px; }
+}
+@media (max-width: 560px){
+  .tt-wrap{ grid-template-columns: 1fr auto; gap:8px; }
+  .tt-search{ display:none; }               /* 모바일에선 검색 접기(필요시 펼침으로 바꿔도 됨) */
+}
+.chart-section {
+  margin-top: 30px;
+}
+.chart-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.chart-time {
+  font-size: 14px;
+  color: var(--tt-muted);
+  margin-bottom: 16px;
+}
+.chart-time .highlight {
+  color: var(--tt-tomato);
+  font-weight: 600;
+}
+.chart-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--tt-border);
+}
+.chart-item:hover {
+  background: var(--tt-card);
+}
+.rank {
+  font-size: 18px;
+  font-weight: bold;
+  width: 30px;
+  text-align: center;
+  color: var(--tt-tomato);
+}
+.cover {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.info {
+  flex: 1;
+}
+.song {
+  font-size: 16px;
+  font-weight: 600;
+}
+.artist, .album {
+  font-size: 13px;
+  color: var(--tt-muted);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.actions .like {
+  font-size: 12px;
+  color: var(--tt-muted);
+  margin-right: 10px;
+}
+.actions button {
+  background: var(--tt-tomato);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.actions button:hover {
+  background: var(--tt-tomato-600);
+}
+
