@@ -6,8 +6,9 @@
     class Playlist { String name; Playlist(String n){name=n;} }
 
     java.util.List<Album> albumList = new java.util.ArrayList<>();
-    albumList.add(new Album("네모네모.webp","네모네모","최예나"));
-    albumList.add(new Album("https://via.placeholder.com/400x400","앨범2","아티스트B"));
+    
+    albumList.add(new Album("흰토마토.png","네모네모","최예나"));
+    albumList.add(new Album("흰토마토.png","멋쟁이 토마토","동요"));
     albumList.add(new Album("https://via.placeholder.com/400x400","앨범3","아티스트C"));
     albumList.add(new Album("https://via.placeholder.com/400x400","앨범4","아티스트D"));
     albumList.add(new Album("https://via.placeholder.com/400x400","앨범5","아티스트E"));
@@ -61,7 +62,7 @@
         <input class="form-control form-control-sm me-2" type="search" placeholder="검색" aria-label="Search">
         <button class="btn btn-main btn-sm" type="submit">검색</button>
       </form>
-      <img src="https://via.placeholder.com/40" alt="작은 로고" class="top-right-logo">
+      <img src="image/토마토.png" alt="작은 로고" style="height:80px; width:80px;" class="top-right-logo">
     </div>
   </nav>
 
