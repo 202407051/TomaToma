@@ -4,6 +4,157 @@
 html, body { height: 100%; }
 body { font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif; line-height: 1.4; color: #111; background: #fff; }
 
+/* ==============================
+   TomaToma — base + 상단바(navbar-top / navbar-menu)
+   ============================== */
+
+/* Reset & Vars */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif;
+  line-height: 1.4;
+  color: #111;
+  background: #fff;
+}
+
+/* 토마토 테마 */
+:root{
+  --tt-tomato: #ff4d3a;
+  --tt-tomato-600:#e13e2e;
+  --tt-ink: #16181c;
+  --tt-muted: #6b7280;
+  --tt-bg: #ffffff;
+  --tt-card: #ffffff;
+  --tt-border: #e5e7eb;
+}
+:root.dark{
+  --tt-ink: #e5e7eb;
+  --tt-muted: #9ca3af;
+  --tt-bg: #0b0c0f;
+  --tt-card: #121318;
+  --tt-border: #23262d;
+}
+
+/* 접근성 유틸 */
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;}
+
+/* 공용 컨테이너 */
+.container{ max-width:1100px; margin:0 auto; padding:0 16px; }
+
+/* ==============================
+   상단 바 1 : navbar-top (로고+검색)
+   — index.jsp의 인라인 스타일을 변수 기반으로 정리
+   ============================== */
+.navbar-top > .container{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 좌 / 가운데 / 우 */
+  align-items: center;
+  gap: 16px;
+}
+
+/* 브랜드는 왼쪽, 밑줄 제거 */
+.navbar-top .navbar-brand{ grid-column: 1; justify-self: start; text-decoration: none; }
+.navbar-top .navbar-brand span{
+  font-family:'Poppins', system-ui, sans-serif;
+  font-weight:1000; color:#d24949; font-size:1.8rem; letter-spacing:-0.02em;
+}
+
+/* 검색폼을 정확히 중앙에 */
+.navbar-top [role="search"]{
+  grid-column: 2;
+  justify-self: center;
+  display: flex; gap: 8px;
+}
+.navbar-top .form-control{
+  width: clamp(280px, 45vw, 560px);   /* 화면에 맞춰 유연하게 */
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 0 14px;
+}
+
+/* 우상단 작은 로고는 그리드의 오른쪽 칸 */
+.top-right-logo{
+  grid-column: 3;
+  justify-self: end;
+  width: 80px; height: 80px; object-fit: cover;
+  position: static; transform: none;   /* 절대배치 제거 */
+}
+
+/* 2) 메뉴바를 정확히 중앙 정렬 */
+.navbar-menu > .container{
+  display: flex;
+  justify-content: center;  /* 컨테이너 자체 중앙 */
+}
+.navbar-menu ul{
+  list-style: none;
+  display: flex;
+  justify-content: center;  /* 항목 중앙 */
+  gap: 32px;
+  padding: 10px 0;
+  margin: 0;
+}
+.navbar-menu a{
+  text-decoration: none;
+  color: #344054;
+  font-weight: 600;
+  padding: 8px 4px;
+}
+.navbar-menu a:hover{ color:#ff4d3a; background: none; }
+.navbar-menu a.active{ color:#e60023 !important; font-weight:700; background: none; }
+
+/* 작은 화면 보완 */
+@media (max-width: 720px){
+  .navbar-top .form-control{ width: clamp(220px, 60vw, 420px); }
+  .top-right-logo{ width:48px; height:48px; }
+  .navbar-menu ul{ gap: 16px; }
+}
+/* UL/LI */
+.navbar-menu ul{
+  list-style:none;
+  display:flex;
+  gap: 12px;
+  padding: 10px 0;
+}
+.navbar-menu li{ margin:0; }
+
+/* a 링크 (class 유무 무관) */
+.navbar-menu a,
+.navbar-menu a.nav-link{
+  display:inline-block;
+  text-decoration:none;
+  color: var(--tt-ink);
+  padding:10px 12px;
+  border-radius:10px;
+  font-weight:600;
+}
+.navbar-menu a:hover{ background: rgba(0,0,0,.04); }
+:root.dark .navbar-menu a:hover{ background: rgba(255,255,255,.06); }
+
+/* 활성 탭 */
+.navbar-menu a.active,
+.navbar-menu .nav-link.active,
+.navbar-menu li.active > a{
+  color:#fff !important;
+  background: var(--tt-tomato);
+  font-weight:700;
+}
+
+/* ==============================
+   페이지 공용 레이아웃(옵션)
+   ============================== */
+.tt-main{ max-width:1100px; margin: 28px auto; padding: 0 16px; }
+
+/* 반응형 보완 */
+@media (max-width: 960px){
+  .form-control{ max-width: 300px; }
+}
+@media (max-width: 560px){
+  .form-control{ display:none; } /* 필요시 제거 */
+}
+
+
 /* 토마토 테마 */
 :root{
   --tt-tomato: #ff4d3a;         /* 메인 */
@@ -183,5 +334,116 @@ body{ background: var(--tt-bg); color: var(--tt-ink); }
 }
 .actions button:hover {
   background: var(--tt-tomato-600);
+  
+  
 }
 
+/* === Fix: 상단 검색창 가운데 + 버튼 모양 통일, 하단 빨간줄 제거 === */
+
+/* 0) 빨간 라인(분홍 보더) → 연한 회색으로 */
+.navbar-top,
+.navbar-menu{
+  border-bottom: 1px solid var(--tt-border) !important;  /* #f5c2c2 덮어쓰기 */
+}
+
+/* 1) 상단바 레이아웃: 로고-검색-우로고(있다면) 가운데 정렬 */
+.navbar-top > .container{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;   /* 좌 / 가운데 / 우 */
+  align-items: center;
+  gap: 16px;
+}
+.navbar-top .navbar-brand{ grid-column:1; justify-self:start; text-decoration:none; }
+
+/* 2) 검색창을 정확히 중앙에 */
+.navbar-top [role="search"]{
+  grid-column:2;
+  justify-self:center;
+  display:flex; align-items:center; gap:10px;
+}
+.navbar-top .form-control{
+  width: clamp(320px, 46vw, 600px);
+  height: 40px;
+  background: var(--tt-card);
+  color: var(--tt-ink);
+  border: 1px solid var(--tt-border);
+  border-radius: 9999px;
+  padding: 0 14px;
+  outline: none;
+}
+.navbar-top .form-control::placeholder{ color: var(--tt-muted); }
+
+/* 3) 검색 버튼을 input/button 구분 없이 동일하게 */
+.navbar-top [role="search"] button,
+.navbar-top [role="search"] input[type="submit"]{
+  appearance: none; -webkit-appearance: none;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--tt-tomato);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 40px;
+}
+.navbar-top [role="search"] button:hover,
+.navbar-top [role="search"] input[type="submit"]:hover{
+  background: var(--tt-tomato-600);
+}
+
+/* 4) 우상단 로고가 있다면 그리드 오른쪽 정렬(absolute 제거) */
+.top-right-logo{
+  grid-column:3;
+  justify-self:end;
+  position: static !important;
+  transform: none !important;
+  width: 48px; height: 48px; object-fit: cover;
+}
+
+/* 5) 메뉴바를 중앙 정렬 */
+.navbar-menu > .container{
+  display:flex; justify-content:center;
+}
+.navbar-menu ul{
+  list-style:none; display:flex; justify-content:center;
+  gap:32px; padding:10px 0; margin:0;
+}
+.navbar-menu a{
+  text-decoration:none; color:#344054; font-weight:600; padding:8px 4px;
+}
+/* 활성 탭은 글자만 빨강 (배경 pill 제거) */
+.navbar-menu ul li a.active{ 
+  color:#e60023 !important; 
+  font-weight:700; 
+  background:none !important; 
+  border-radius:0 !important;
+}
+.chart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.info {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.play-btn {
+  background-color: #D24949;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.play-btn:hover {
+  background-color: #b03b3b;
+}

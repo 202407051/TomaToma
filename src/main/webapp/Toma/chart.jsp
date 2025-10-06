@@ -11,51 +11,39 @@
         }
     } catch (Exception ignore) {}
 %>
+
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TomaToma | 인기차트</title>
-
-  <!-- 이 줄이 핵심: 모든 상대경로의 기준을 /JSP22/ 로 고정 -->
-  <base href="<%= ctx %>/" />
-
-  <!-- CSS: /JSP22/css/style.css 로 정확히 로드 + 캐시 무효화 -->
-   <link rel="stylesheet" href="css/style.css?v=<%= v %>" />
-
-  <!-- 파비콘/이미지도 이제 상대경로로 OK (기준은 /JSP22/) -->
-  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+  <title>인기차트</title>
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css?v=3" />
 </head>
-<body>
-  <!-- 헤더 -->
-  <header class="tt-header">
-    <div class="tt-wrap">
-      <!-- 로고 -->
-      <a class="tt-logo" href="/JSP22/index.jsp" aria-label="TomaToma 홈">
-        <img src="images/logo-toma.svg" alt="TomaToma"
-             onerror="this.closest('.tt-logo').classList.add('text'); this.remove();" />
-        <span class="tt-logo-text">TomaToma</span>
-      </a>
+<body class="page-chart">
 
-      <!-- 내비 -->
-      <nav class="tt-nav" aria-label="주요 메뉴">
-        <ul>
-          <li><a href="index.jsp">홈</a></li>
-          <li class="active"><a href="#popular">인기차트</a></li>
-          <li><a href="#latest">최신차트</a></li>
-          <li><a href="#artists">인기 아티스트</a></li>
-          <li><a href="#playlist">내 플레이리스트</a></li>
-        </ul>
-      </nav>
-
-      <!-- 검색 -->
-      <form class="tt-search" role="search" action="search" method="get">
-        <label for="q" class="sr-only">검색어</label>
-        <input id="q" name="q" type="search" placeholder="곡/아티스트 검색" />
-        <button type="submit">검색</button>
+ <nav class="navbar navbar-expand-lg navbar-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#"><span>TomaToma</span></a>
+      <form class="d-flex ms-3" role="search" style="flex-grow:1;">
+        <input class="form-control form-control-sm me-2" type="search" placeholder="검색" aria-label="Search">
+        <button class="btn btn-main btn-sm" type="submit">검색</button>
       </form>
+      <img src="image/토마토.png" alt="작은 로고" style="height:80px; width:80px;" class="top-right-logo">
+    </div>
+  </nav>
 
+  <!-- 메뉴바 -->
+  <nav class="navbar navbar-menu">
+    <div class="container d-flex justify-content-center" style="max-width:1200px;">
+      <ul class="navbar-nav d-flex flex-row">
+        <li class="nav-item mx-3"><a class="nav-link active" href="/Toma/index.jsp">홈</a></li>
+        <li class="nav-item mx-3"><a class="nav-link" href="#">인기차트</a></li>
+        <li class="nav-item mx-3"><a class="nav-link" href="#">최신곡</a></li>
+        <li class="nav-item mx-3"><a class="nav-link" href="#">플레이리스트</a></li>
+        <li class="nav-item mx-3"><a class="nav-link" href="#">마이페이지</a></li>
+      </ul>
+    </div>
+  </nav>
       <!-- 다크모드 토글 -->
       <button class="tt-dark-toggle" type="button" aria-pressed="false" aria-label="다크 모드 전환" id="darkToggle">🌓</button>
 
@@ -88,6 +76,7 @@
           <p class="song">Golden</p>
           <p class="artist">HUNTR/X, EJAE, AUDREY NUNA</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">2</span>
@@ -95,6 +84,7 @@
           <p class="song">뛰어(JUMP)</p>
           <p class="artist">BLACKPINK</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">3</span>
@@ -102,6 +92,7 @@
           <p class="song">Supernova</p>
           <p class="artist">aespa</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">4</span>
@@ -109,6 +100,7 @@
           <p class="song">Love 119</p>
           <p class="artist">RIIZE</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">5</span>
@@ -116,6 +108,7 @@
           <p class="song">Seven</p>
           <p class="artist">정국 (Jungkook) feat. Latto</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">6</span>
@@ -123,6 +116,7 @@
           <p class="song">Spicy</p>
           <p class="artist">aespa</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">7</span>
@@ -130,6 +124,7 @@
           <p class="song">Ditto</p>
           <p class="artist">NewJeans</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">8</span>
@@ -137,6 +132,7 @@
           <p class="song">Drama</p>
           <p class="artist">aespa</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">9</span>
@@ -144,6 +140,7 @@
           <p class="song">ETA</p>
           <p class="artist">NewJeans</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
       <li class="chart-item">
         <span class="rank">10</span>
@@ -151,6 +148,7 @@
           <p class="song">Shut Down</p>
           <p class="artist">BLACKPINK</p>
         </div>
+         <button class="play-btn" onclick="playMusic('Seven')">▶</button>
       </li>
     </ul>
   </section>
