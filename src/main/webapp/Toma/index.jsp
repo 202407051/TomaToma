@@ -74,7 +74,7 @@
         <li class="nav-item mx-3"><a class="nav-link" href="#">인기차트</a></li>
         <li class="nav-item mx-3"><a class="nav-link" href="#">최신곡</a></li>
         <li class="nav-item mx-3"><a class="nav-link" href="#">플레이리스트</a></li>
-        <li class="nav-item mx-3"><a class="nav-link" href="#">마이페이지</a></li>
+        <li class="nav-item mx-3"><a class="nav-link" href="mypage.jsp">마이페이지</a></li>
       </ul>
     </div>
   </nav>
@@ -110,7 +110,6 @@
       <div class="col-md-3">
         <div class="card shadow-sm mb-4">
           <div class="card-body text-center">
-            <h6 class="fw-bold mb-3">로그인</h6>
             <button class="btn btn-main w-100 mb-2">로그인</button>
             <a href="#" class="d-block small text-muted">회원가입</a>
           </div>
