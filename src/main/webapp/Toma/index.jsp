@@ -1,5 +1,55 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
+
+
 <%
+	// ✅ 1. Spotify Access Token 발급
+	String clientId = "당신의_CLIENT_ID";
+	String clientSecret = "당신의_CLIENT_SECRET";
+	String auth = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
+	
+	URL url = new URL("https://accounts.spotify.com/api/token");
+	HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	conn.setRequestMethod("POST");
+	conn.setDoOutput(true);
+	conn.setRequestProperty("Authorization", "Basic " + auth);
+	conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+	
+	String body = "grant_type=client_credentials";
+	conn.getOutputStream().write(body.getBytes());
+	
+	BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	String line, response = "";
+	while ((line = br.readLine()) != null) response += line;
+	br.close();
+	
+	String token = new JSONObject(response).getString("access_token");
+	
+	// ✅ 2. Spotify “신규 앨범” 가져오기
+	URL apiUrl = new URL("https://api.spotify.com/v1/browse/new-releases?country=KR&limit=6");
+	HttpURLConnection apiConn = (HttpURLConnection) apiUrl.openConnection();
+	apiConn.setRequestProperty("Authorization", "Bearer " + token);
+	
+	BufferedReader br2 = new BufferedReader(new InputStreamReader(apiConn.getInputStream()));
+	String res = "", line2;
+	while ((line2 = br2.readLine()) != null) res += line2;
+	br2.close();
+	
+	JSONObject json = new JSONObject(res);
+	JSONArray albums = json.getJSONObject("albums").getJSONArray("items");
+	
+	// ✅ 3. 리스트 초기화 및 채우기
+	class Album { String cover, title, artist; Album(String c, String t, String a){cover=c;title=t;artist=a;} }
+	List<Album> albumList = new ArrayList<>();
+	
+	for (int i = 0; i < albums.length(); i++) {
+	    JSONObject item = albums.getJSONObject(i);
+	    String title = item.getString("name");
+	    String artist = item.getJSONArray("artists").getJSONObject(0).getString("name");
+	    String cover = item.getJSONArray("images").getJSONObject(0).getString("url");
+	    albumList.add(new Album(cover, title, artist));
+	}
+
     // 예시 데이터 (실제 DB 연결 후 List<Album>, List<Song> 등으로 교체)
     class Album { String cover, title, artist; Album(String c, String t, String a){cover=c;title=t;artist=a;} }
     class Song { int rank; String title, artist; Song(int r, String t, String a){rank=r;title=t;artist=a;} }
