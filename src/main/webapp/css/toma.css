@@ -1,0 +1,136 @@
+/* ===== 기본 설정: 페이지 기본은 흰색(요구사항) ===== */
+body {
+    background-color: #ffffff;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #212529;
+}
+
+/* ===== 상단 네비 ===== */
+.navbar-top {
+    background-color: #fff;
+    padding: 20px 0;
+}
+
+.navbar-top .container {
+    max-width: 1200px;
+    position: relative; /* top-right-logo 절대위치 기준 */
+    display: flex;
+    align-items: center;
+}
+
+/* 로고 스타일 */
+.navbar-brand span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 1000 !important;
+    color: #d24949;
+    font-size: 1.8rem;
+    margin-right: 15px;
+}
+
+/* 오른쪽 고정 로고 */
+.top-right-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+}
+
+/* ===== 검색창 + 버튼 ===== */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+/* 검색 input만 빨간 캡슐형 테두리 */
+.search-input {
+    border: 2px solid #d24949;
+    border-radius: 50px;
+    padding: 6px 16px;
+    outline: none;
+    height: 38px;
+    width: 350px; /* 필요에 따라 조정 */
+}
+
+/* 검색 버튼 */
+.search-container .btn-main {
+    height: 38px;
+    padding: 6px 16px;
+    margin-left: 8px;
+}
+
+/* 버튼 빨간색 */
+.btn-main {
+    background-color: #d9534f !important;
+    color: white !important;
+    border-radius: 20px;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+
+.btn-main:hover {
+    background-color: #c9302c !important;
+}
+
+/* ===== 메뉴바: 얇은 빨간선 ===== */
+.navbar-menu {
+    background-color: #fff;
+    border-bottom: 1px solid #f5c2c2; /* 얇은 레드 라인 */
+}
+
+.navbar-menu .nav-link {
+    color: #000;
+    font-weight: 700;
+}
+
+/* 메뉴바 hover */
+.navbar-menu .nav-link:hover {
+    color: #e60023;
+    transition: color 0.2s ease;
+}
+
+/* 활성 링크 */
+.navbar-menu .nav-link.active {
+    color: #e60023 !important;
+}
+
+/* ===== 최신 앨범 섹션: 회색 박스 ===== */
+.new-album-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 앨범 이미지: 정사각형, 4열 */
+.album-card .album-square,
+.album-card img.album-square {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.album-card:hover .album-square {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.album-card p {
+    margin: 6px 0 0;
+}
+
+/* ===== 플레이리스트 ===== */
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===== 플레이어 바 ===== */
+.player-bar {
+    background-color: #ffffff;
+    border-top: 3px solid #d24949;
+}
