@@ -83,7 +83,11 @@
 </head>
 <body>
 
-<%@ include file="../include/header.jsp" %>
+<jsp:include page="../include/header.jsp">
+    <jsp:param name="page" value="home"/>
+</jsp:include>
+
+
 
 
   <!-- 메인: 최신 앨범(회색 박스)만 회색, 나머지는 흰색 -->
