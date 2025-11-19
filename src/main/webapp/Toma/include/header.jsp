@@ -25,9 +25,9 @@
   <div class="container" style="max-width:1200px;">
     <ul class="navbar-nav d-flex flex-row">
       <li class="nav-item mx-3"><a class="nav-link" href="index.jsp">홈</a></li>
-      <li class="nav-item mx-3"><a class="nav-link" href="chart.jsp">인기차트</a></li>
-      <li class="nav-item mx-3"><a class="nav-link" href="#">최신음악</a></li>
-      <li class="nav-item mx-3"><a class="nav-link" href="#">플레이리스트</a></li>
+      <li class="nav-item mx-3"><a class="nav-link" href="chart_popular.jsp">인기차트</a></li>
+      <li class="nav-item mx-3"><a class="nav-link" href="chart_new.jsp">최신음악</a></li>
+      <li class="nav-item mx-3"><a class="nav-link" href="playlist.jsp">플레이리스트</a></li>
       <li class="nav-item mx-3"><a class="nav-link" href="mypage.jsp">마이페이지</a></li>
     </ul>
   </div>
