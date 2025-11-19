@@ -5,7 +5,7 @@
   <div class="container position-relative d-flex align-items-center">
     
     <!-- 로고 -->
-    <a class="navbar-brand d-flex align-items-center ms-3" href="#">
+    <a class="navbar-brand d-flex align-items-center ms-3" href="index.jsp">
       <span>TomaToma</span>
     </a>
 
@@ -24,7 +24,7 @@
 <nav class="navbar navbar-menu">
   <div class="container" style="max-width:1200px;">
     <ul class="navbar-nav d-flex flex-row">
-      <li class="nav-item mx-3"><a class="nav-link active" href="#">홈</a></li>
+      <li class="nav-item mx-3"><a class="nav-link" href="index.jsp">홈</a></li>
       <li class="nav-item mx-3"><a class="nav-link" href="chart.jsp">인기차트</a></li>
       <li class="nav-item mx-3"><a class="nav-link" href="#">최신음악</a></li>
       <li class="nav-item mx-3"><a class="nav-link" href="#">플레이리스트</a></li>
