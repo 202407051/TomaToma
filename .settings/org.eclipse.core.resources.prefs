@@ -1,2 +1,6 @@
 eclipse.preferences.version=1
+encoding//src/main/webapp/Toma/pages/checkEmail.jsp=UTF-8
+encoding//src/main/webapp/Toma/pages/joinProcess.jsp=UTF-8
+encoding//src/main/webapp/Toma/pages/loginProcess.jsp=UTF-8
+encoding//src/main/webapp/Toma/pages/updateProfile.jsp=UTF-8
 encoding/<project>=UTF-8

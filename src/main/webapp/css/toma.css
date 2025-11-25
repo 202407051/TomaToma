@@ -27,16 +27,17 @@ body {
     margin-right: 15px;
 }
 
-/* 오른쪽 고정 로고 */
+/* 오른쪽 상단 작은 로고 위치/크기 조절 */
 .top-right-logo {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
+    height: 70px;      /* 원하는 크기로 조절 */
+    width: auto;       /* 비율 유지 */
     position: absolute;
+    right: 30px;       /* 오른쪽에서 10px 떨어뜨리기 */
     top: 50%;
-    right: 0;
-    transform: translateY(-50%);
+    transform: translateY(-50%); /* 세로 중앙 정렬 */
 }
+
+
 
 /* ===== 검색창 + 버튼 ===== */
 .search-container {
@@ -134,3 +135,10 @@ body {
     background-color: #ffffff;
     border-top: 3px solid #d24949;
 }
+
+.playlist-section,
+.liked-section {
+    background-color: #fafafa; /* 약간 회색 */
+    border: 1px solid #f1dada;
+}
+
