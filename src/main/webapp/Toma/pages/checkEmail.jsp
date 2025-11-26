@@ -7,7 +7,7 @@
 
     Connection conn = ConnectionManager.getConnection();
     PreparedStatement pstmt = conn.prepareStatement(
-        "SELECT email FROM user WHERE email=?"
+        "SELECT email FROM playlist_iduser WHERE email=?"
     );
     pstmt.setString(1, email);
 

@@ -12,7 +12,8 @@
     PreparedStatement pstmt = null;
     ResultSet rs = null;
 
-    String sql = "SELECT user_id, username FROM user WHERE email=? AND password=?";
+    // 🔥 user 테이블이 아니라 playlist_iduser 테이블!
+    String sql = "SELECT user_id, username FROM playlist_iduser WHERE email=? AND password=?";
 
     pstmt = conn.prepareStatement(sql);
     pstmt.setString(1, email);
@@ -21,9 +22,11 @@
     rs = pstmt.executeQuery();
 
     if(rs.next()) {
+        // 세션 저장
         session.setAttribute("user_id", rs.getInt("user_id"));
         session.setAttribute("username", rs.getString("username"));
 
+        // 로그인 성공 → 마이페이지 이동
         response.sendRedirect("mypage.jsp");
     } else {
         out.println("<script>alert('아이디 또는 비밀번호가 잘못되었습니다.');history.back();</script>");

@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class ConnectionManager {
 
     private static final String URL =
-            "jdbc:mysql://localhost:3306/tomatoma?serverTimezone=UTC&characterEncoding=UTF-8";
+            "jdbc:mysql://localhost:3308/tomatoma?serverTimezone=UTC&characterEncoding=UTF-8";
     private static final String USER = "root";
     private static final String PASS = "1234";  // 네 비밀번호로
 

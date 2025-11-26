@@ -11,7 +11,7 @@
 
     Connection conn = ConnectionManager.getConnection();
     PreparedStatement pstmt = conn.prepareStatement(
-        "INSERT INTO user(username, email, password) VALUES(?,?,?)"
+        "INSERT INTO playlist_iduser(username, email, password) VALUES(?,?,?)"
     );
 
     pstmt.setString(1, name);
