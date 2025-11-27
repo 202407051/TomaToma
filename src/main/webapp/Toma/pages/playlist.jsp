@@ -1,8 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 <%
-    // [1] 로그인 세션 확인 (사이드바 처리를 위한 변수 설정)
-    // 세션에서 사용자 이름(또는 ID)을 가져옵니다. "userName"은 실제 프로젝트 세션 키값에 맞춰주세요.
+    // [1] 로그인 세션 확인
     String username = (String) session.getAttribute("userName");
     boolean isLoggedIn = (username != null);
 
@@ -45,63 +44,117 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* [CSS 스타일 정의] */
-        .pl-body { font-family: 'Noto Sans KR', sans-serif; background-color: #fff; padding-bottom: 120px; }
+        /* [CSS 스타일 정의 - Pretty Tomato Theme] */
+        .pl-body { font-family: 'Noto Sans KR', sans-serif; background-color: #fdfdfd; padding-bottom: 120px; }
         .pl-container { max-width: 1200px; margin: 0 auto; padding: 30px 12px; }
         .hidden { display: none !important; }
         .text-tomato { color: #FF4B4B; font-weight: bold; }
         
-        /* 버튼 스타일 */
-        .pl-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; height: 34px; border: 1px solid #d1d1d1; background: #fff; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; transition: 0.2s; white-space: nowrap; flex-shrink: 0; }
-        .pl-btn:hover { color: #FF4B4B; border-color: #FF4B4B; background: #fff5f5; }
-        .pl-btn-tomato { background: #FF4B4B; color: #fff; border-color: #e03e3e; font-weight: bold; }
-        .pl-btn-tomato:hover { background: #ff3333; color: white; }
+        /* 상단 버튼 스타일 */
+        .pl-btn { 
+            display: inline-flex; align-items: center; justify-content: center; 
+            padding: 0 16px; height: 38px; 
+            border: 1px solid #ddd; background: #fff; 
+            border-radius: 8px; 
+            font-size: 13px; color: #555; cursor: pointer; 
+            transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .pl-btn:hover { color: #FF4B4B; border-color: #FF4B4B; background: #fff5f5; transform: translateY(-1px); }
+        .pl-btn i { margin-right: 8px; font-size: 14px; } 
+
+        .pl-btn-tomato { background: #FF4B4B; color: #fff; border-color: #FF4B4B; font-weight: bold; }
+        .pl-btn-tomato:hover { background: #ff3333; color: white; border-color: #ff3333; box-shadow: 0 4px 10px rgba(255, 75, 75, 0.3); }
         
-        /* [수정 1] 버튼 내부 아이콘과 글자 간격 벌리기 */
-        .pl-btn i { margin-right: 6px; }
+        .pl-header-wrap { border-bottom: 2px solid #FF4B4B; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
+        .pl-page-title { font-size: 24px; font-weight: 700; margin: 0; color: #222; letter-spacing: -0.5px; }
         
-        .pl-header-wrap { border-bottom: 2px solid #FF4B4B; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-        .pl-page-title { font-size: 22px; font-weight: bold; margin: 0; color: #333; }
+        /* 테이블 스타일 */
+        .tbl-list { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; }
+        .tbl-list th { background: #fafafa; height: 45px; font-weight: 600; font-size: 13px; border-bottom: 2px solid #eee; text-align: center; color: #666; }
+        .tbl-list td { padding: 12px 0; border-bottom: 1px solid #f2f2f2; font-size: 14px; text-align: center; vertical-align: middle; background: #fff; }
+        .tbl-list tr:hover td { background: #fffafb; }
         
-        /* 테이블 */
-        .tbl-list { width: 100%; border-collapse: collapse; margin-top: 10px; border-top: 1px solid #d1d1d1; }
-        .tbl-list th { background: #f8f8f8; height: 40px; font-weight: normal; font-size: 12px; border-bottom: 1px solid #ddd; text-align: center; }
-        .tbl-list td { padding: 10px 0; border-bottom: 1px solid #f2f2f2; font-size: 13px; text-align: center; }
-        .tbl-list tr:hover td { background: #fff9f9; }
-        
-        /* 만들기 화면 */
-        .create-wrap { background: #fbfbfb; border: 1px solid #ececec; padding: 20px; display: flex; gap: 20px; margin-bottom: 20px; border-radius: 8px; }
-        .img-upload-box { width: 140px; height: 140px; border: 2px dashed #ccc; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; flex-shrink: 0; }
+        /* [수정] 예쁜 듣기 버튼 (빨강 원형) - 시각적 중심 보정(padding-left: 4px) */
+        .btn-play-red {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #FF4B4B;
+            color: #FF4B4B;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+            padding-left: 4px; /* 삼각형을 오른쪽으로 밀어서 시각적 중앙 정렬 */
+            font-size: 14px;
+        }
+        .btn-play-red:hover { background: #FF4B4B; color: white; transform: scale(1.1); box-shadow: 0 2px 8px rgba(255, 75, 75, 0.4); }
+
+        /* 만들기 화면 스타일 */
+        .create-wrap { background: #fff; border: 1px solid #eee; padding: 25px; display: flex; gap: 25px; margin-bottom: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .img-upload-box { width: 150px; height: 150px; border: 2px dashed #ddd; background: #fafafa; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; flex-shrink: 0; transition: 0.2s; }
+        .img-upload-box:hover { border-color: #FF4B4B; background: #fff; }
         .img-upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
         
-        /* 듀얼 리스트 */
-        .dual-list-box { display: flex; gap: 15px; height: 500px; align-items: center; }
-        .dl-panel { flex: 1; border: 1px solid #ddd; height: 100%; display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; background: #fff; }
-        .dl-center-arrow { font-size: 24px; color: #FF4B4B; animation: arrowMove 1.5s infinite; }
-        @keyframes arrowMove { 0%, 100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(5px); opacity: 1; } }
+        /* 듀얼 리스트 스타일 */
+        .dual-list-box { display: flex; gap: 20px; height: 550px; align-items: center; }
+        .dl-panel { flex: 1; border: 1px solid #e1e1e1; height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .dl-center-arrow { font-size: 28px; color: #FF4B4B; animation: arrowMove 1.5s infinite; }
         
-        .dl-tabs { display: flex; background: #f4f4f4; border-bottom: 1px solid #ddd; }
-        .dl-tab { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 13px; color: #666; border-right: 1px solid #eee; }
-        .dl-tab.active { background: #fff; color: #FF4B4B; font-weight: bold; border-bottom: 2px solid #FF4B4B; }
+        .dl-tabs { display: flex; background: #f8f8f8; border-bottom: 1px solid #e1e1e1; }
+        .dl-tab { flex: 1; text-align: center; padding: 14px 0; cursor: pointer; font-size: 14px; color: #777; border-right: 1px solid #f0f0f0; transition: 0.2s; background: #fdfdfd;}
+        .dl-tab:hover { background: #fff; color: #333; }
+        .dl-tab.active { background: #fff; color: #FF4B4B; font-weight: bold; border-bottom: 3px solid #FF4B4B; }
         
-        /* 검색창 레이아웃 고정 */
-        #toolbar-search { padding: 10px; display: flex; gap: 5px; border-bottom: 1px solid #eee; width: 100%; flex-wrap: nowrap; align-items: center; box-sizing: border-box; }
-        #search-keyword { flex: 1; min-width: 0; }
+        #toolbar-search { padding: 15px; display: flex; gap: 8px; border-bottom: 1px solid #eee; width: 100%; flex-wrap: nowrap; align-items: center; box-sizing: border-box; }
+        #search-keyword { flex: 1; min-width: 0; height: 38px; }
+        #toolbar-chart { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
         
-        .track-item { display: flex; align-items: center; padding: 8px 10px; border-bottom: 1px solid #f6f6f6; font-size: 13px; }
+        .track-item { 
+            display: flex; align-items: center; 
+            padding: 10px 15px; 
+            border-bottom: 1px solid #f6f6f6; 
+            font-size: 13px; 
+            transition: 0.1s;
+            background: #fff;
+        }
         .track-item:hover { background: #fff5f5; }
-        .track-img { width: 40px; height: 40px; border-radius: 4px; margin: 0 10px; object-fit: cover; border: 1px solid #eee; flex-shrink: 0; }
-        .track-info { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        
+        /* 랭킹 숫자 */
+        .track-rank { width: 30px; font-weight: 800; color: #FF4B4B; text-align: center; font-style: italic; font-size: 16px; margin-right: 8px; }
+        
+        .track-img { width: 48px; height: 48px; border-radius: 6px; margin-right: 12px; object-fit: cover; border: 1px solid #eee; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .track-info { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+        
+        .track-btns { display: flex; gap: 8px; margin-left: 10px; }
+        
+        /* [수정] 작은 원형 재생 버튼도 시각 보정 (padding-left: 2px) */
+        .btn-icon-play {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #fff; border: 1px solid #ddd; color: #555;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; padding-left: 3px;
+        }
+        .btn-icon-play:hover { border-color: #333; color: #333; transform: scale(1.1); }
+        
+        .btn-icon-add {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #fff0f0; border: 1px solid #ffcccc; color: #FF4B4B;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-icon-add:hover { background: #FF4B4B; color: white; border-color: #FF4B4B; transform: scale(1.1); box-shadow: 0 2px 6px rgba(255, 75, 75, 0.3); }
 
-        .pl-input { border: 1px solid #d1d1d1; padding: 8px; border-radius: 4px; width: 100%; outline: none; box-sizing: border-box; }
-        .pl-input:focus { border-color: #FF4B4B; }
+        .pl-input { border: 1px solid #ddd; padding: 10px; border-radius: 6px; width: 100%; outline: none; box-sizing: border-box; font-size: 14px; transition: 0.2s; }
+        .pl-input:focus { border-color: #FF4B4B; box-shadow: 0 0 0 3px rgba(255, 75, 75, 0.1); }
         .pl-cover { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; margin-right: 12px; border: 1px solid #eee; cursor: pointer; }
+        
         #player-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: #000; z-index: 9999; display: none; border-top: 3px solid #FF4B4B; }
         iframe { width: 100%; height: 100%; border: none; }
         
-        /* [수정 2] 로그인 버튼 스타일 (둥근 모양) */
         .btn-main { background-color: #FF4B4B; color: white; border-radius: 50px; border: none; font-weight: bold; transition: 0.2s; }
-        .btn-main:hover { background-color: #e03e3e; color: white; }
+        .btn-main:hover { background-color: #e03e3e; color: white; box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3); }
+        
+        @keyframes arrowMove { 0%, 100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(5px); opacity: 1; } }
     </style>
 </head>
 <body class="pl-body">
@@ -124,9 +177,9 @@
                             <button class="pl-btn pl-btn-tomato" onclick="goCreate()"><i class="fas fa-plus"></i> 만들기</button>
                         </div>
                     </div>
-                    <div style="font-size:12px; color:#888; margin-bottom:8px;">총 <span class="text-tomato" id="total-cnt">0</span>개</div>
+                    <div style="font-size:13px; color:#888; margin-bottom:10px;">총 <span class="text-tomato" id="total-cnt">0</span>개</div>
                     <table class="tbl-list">
-                        <colgroup><col width="40"><col width="50"><col width="*"><col width="150"><col width="80"></colgroup>
+                        <colgroup><col width="40"><col width="60"><col width="*"><col width="180"><col width="80"></colgroup>
                         <thead><tr><th><input type="checkbox" id="chk-all-main"></th><th>NO</th><th>플레이리스트 정보</th><th>수록곡 미리보기</th><th>듣기</th></tr></thead>
                         <tbody id="playlist-tbody"></tbody>
                     </table>
@@ -138,17 +191,18 @@
                         <div class="img-upload-box" onclick="$('#file-input').click()">
                             <img src="" id="preview-img" class="hidden">
                             <div id="preview-placeholder" style="text-align:center; color:#aaa;">
-                                <i class="fas fa-camera" style="font-size:24px; margin-bottom:5px; display:block;"></i>커버
+                                <i class="fas fa-camera" style="font-size:24px; margin-bottom:8px; display:block; color:#ddd;"></i>
+                                <span style="font-size:12px; color:#999;">커버 등록</span>
                             </div>
                             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImg(this)">
                         </div>
-                        <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
-                            <input type="text" id="input-title" class="pl-input" placeholder="제목 (필수)" style="font-weight:bold;">
-                            <textarea id="input-desc" class="pl-input" placeholder="소개글" style="flex:1; resize:none;"></textarea>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+                            <input type="text" id="input-title" class="pl-input" placeholder="플레이리스트 제목을 입력하세요" style="font-weight:bold; font-size:16px;">
+                            <textarea id="input-desc" class="pl-input" placeholder="어떤 분위기의 곡들인가요? 소개글을 적어주세요." style="flex:1; resize:none;"></textarea>
                         </div>
                     </div>
 
-                    <h4 style="font-size:16px; font-weight:bold; color:#555; margin-bottom:10px;">수록곡 담기</h4>
+                    <h4 style="font-size:18px; font-weight:800; color:#333; margin-bottom:15px;">수록곡 담기 <span style="font-size:13px; font-weight:normal; color:#888; margin-left:5px;">원하는 곡을 검색하거나 차트에서 추가하세요.</span></h4>
                     
                     <div class="dual-list-box">
                         <div class="dl-panel">
@@ -157,61 +211,68 @@
                                 <div class="dl-tab" onclick="switchTab('popular')">인기차트</div>
                                 <div class="dl-tab" onclick="switchTab('new')">최신곡</div>
                             </div>
+                            
                             <div id="toolbar-search">
-                                <input type="text" id="search-keyword" class="pl-input" placeholder="가수, 제목..." onkeypress="if(event.keyCode==13) doSearch()">
-                                <button class="pl-btn" onclick="doSearch()">검색</button>
+                                <input type="text" id="search-keyword" class="pl-input" placeholder="가수, 제목 검색..." onkeypress="if(event.keyCode==13) doSearch()">
+                                <button class="pl-btn pl-btn-tomato" style="height:38px;" onclick="doSearch()">검색</button>
                             </div>
-                            <div id="toolbar-chart" class="hidden" style="padding:10px; text-align:right; border-bottom:1px solid #eee;">
-                                <button class="pl-btn pl-btn-tomato" onclick="addChecked()">+ 선택 담기</button>
+                            
+                            <div id="toolbar-chart" class="hidden">
+                                <div style="font-size:12px; color:#666;">
+                                    <i class="far fa-clock"></i> 기준: <span id="chart-date" class="text-tomato fw-bold"></span>
+                                </div>
+                                <button class="pl-btn" style="width:34px; padding:0;" onclick="refreshChart()" title="새로고침">
+                                    <i class="fas fa-sync-alt" style="margin:0;"></i>
+                                </button>
                             </div>
+
                             <div id="source-list" style="flex:1; overflow-y:auto;"></div>
                         </div>
 
                         <div class="dl-center-arrow"><i class="fas fa-chevron-right"></i></div>
 
-                        <div class="dl-panel" style="border-color:#FF4B4B;">
-                            <div style="padding:10px; background:#FF4B4B; color:white; font-weight:bold; display:flex; justify-content:space-between;">
+                        <div class="dl-panel" style="border-color:#FF4B4B; border-width:2px;">
+                            <div style="padding:12px 15px; background:#FF4B4B; color:white; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
                                 <span>선곡 리스트 (<span id="sel-cnt">0</span>)</span>
-                                <button onclick="clearTemp()" style="background:none; border:1px solid white; color:white; border-radius:10px; font-size:11px; cursor:pointer;">전체삭제</button>
+                                <button onclick="clearTemp()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.5); color:white; border-radius:12px; font-size:11px; cursor:pointer; padding:2px 10px; transition:0.2s;">전체삭제</button>
                             </div>
                             <div id="selected-list" style="flex:1; overflow-y:auto; background:#fffbfb;"></div>
                         </div>
                     </div>
 
-                    <div style="text-align:center; margin-top:20px;">
-                        <button class="pl-btn pl-btn-tomato" style="width:120px; height:40px;" onclick="savePlaylist()">저장</button>
-                        <button class="pl-btn" style="width:120px; height:40px;" onclick="goMainView()">취소</button>
+                    <div style="text-align:center; margin-top:30px; display:flex; justify-content:center; gap:10px;">
+                        <button class="pl-btn pl-btn-tomato" style="width:140px; height:45px; font-size:15px;" onclick="savePlaylist()">저장하기</button>
+                        <button class="pl-btn" style="width:140px; height:45px; font-size:15px;" onclick="goMainView()">취소</button>
                     </div>
                 </div>
 
                 <div id="view-detail" class="hidden">
-                    <button class="pl-btn" onclick="goMainView()" style="margin-bottom:15px;"> < 목록</button>
-                    <div class="pl-header-wrap" style="border:none; align-items:flex-start; margin-bottom:0;">
-                        <img src="" id="detail-img" class="pl-cover" style="width:120px; height:120px;">
-                        <div style="flex:1; padding-left:20px;">
-                            <h3 id="detail-title" style="font-weight:bold; margin-bottom:10px;"></h3>
-                            <p id="detail-desc" style="color:#666; font-size:14px;"></p>
-                            <div style="color:#888; font-size:13px;">총 <span id="detail-cnt" class="text-tomato"></span>곡 | <span id="detail-date"></span></div>
+                    <button class="pl-btn" onclick="goMainView()" style="margin-bottom:15px;"> <i class="fas fa-arrow-left"></i> 목록으로</button>
+                    <div class="pl-header-wrap" style="border:none; align-items:flex-start; margin-bottom:0; padding-bottom:0;">
+                        <img src="" id="detail-img" class="pl-cover" style="width:140px; height:140px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                        <div style="flex:1; padding-left:25px; display:flex; flex-direction:column; justify-content:center; height:140px;">
+                            <h3 id="detail-title" style="font-weight:800; font-size:28px; margin-bottom:10px; letter-spacing:-1px;"></h3>
+                            <p id="detail-desc" style="color:#666; font-size:15px; margin-bottom:5px;"></p>
+                            <div style="color:#999; font-size:13px;">총 <span id="detail-cnt" class="text-tomato fw-bold"></span>곡 수록 | 생성일: <span id="detail-date"></span></div>
                             <div style="margin-top:15px;">
-                                <button class="pl-btn pl-btn-tomato" onclick="playAllDetail()">▶ 전체듣기</button>
-                                <button class="pl-btn" onclick="goEdit()">✎ 수정</button>
+                                <button class="pl-btn pl-btn-tomato" onclick="playAllDetail()"><i class="fas fa-play"></i> 전체듣기</button>
+                                <button class="pl-btn" onclick="goEdit()"><i class="fas fa-pen"></i> 수정</button>
                             </div>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin:20px 0 10px;">
-                        <div>
-                            <button class="pl-btn" onclick="playSelTrack()">▶ 선택듣기</button>
-                            <button class="pl-btn" onclick="delSelTrack()">🗑 선택삭제</button>
+                    <div style="display:flex; justify-content:space-between; margin:30px 0 10px; align-items:center;">
+                        <div style="display:flex; gap:5px;">
+                            <button class="pl-btn" onclick="playSelTrack()"><i class="fas fa-play"></i> 선택듣기</button>
+                            <button class="pl-btn" onclick="delSelTrack()"><i class="fas fa-trash"></i> 선택삭제</button>
                         </div>
-                        <button class="pl-btn" onclick="saveTrackOrder()">💾 순서저장</button>
+                        <button class="pl-btn" onclick="saveTrackOrder()"><i class="fas fa-save"></i> 순서저장</button>
                     </div>
                     <table class="tbl-list">
-                        <colgroup><col width="40"><col width="50"><col width="*"><col width="200"><col width="80"></colgroup>
-                        <thead><tr><th><input type="checkbox" id="chk-all-track"></th><th>NO</th><th>곡 정보</th><th>아티스트</th><th>듣기</th></tr></thead>
+                        <colgroup><col width="40"><col width="60"><col width="*"><col width="200"><col width="80"></colgroup>
+                        <thead><tr><th><input type="checkbox" id="chk-all-track"></th><th>NO</th><th>곡 정보 (드래그하여 순서 변경)</th><th>아티스트</th><th>듣기</th></tr></thead>
                         <tbody id="detail-tbody"></tbody>
                     </table>
                 </div>
-
             </div>
             
             <div class="col-md-3">
@@ -233,7 +294,7 @@
                   </div>
                 </div>
                 <% } %>
-
+                
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -246,6 +307,7 @@
             </div>
         </div>
     </div>
+    
     <div id="player-container"><iframe id="spotify-iframe" src=""></iframe></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -255,15 +317,35 @@
         const DEFAULT_IMG = "<%=request.getContextPath()%>/image/토마토.png"; 
 
         let tempTracks=[], sourceTracks=[], editId=null, tempImg=null;
+        let currentTab = 'search'; 
 
         $(function(){
             goMainView();
-            $("#playlist-tbody, #selected-list, #detail-tbody").sortable({cursor:"move", helper:"clone", opacity:0.8});
+            
+            // [수정] 드래그 앤 드롭 즉시 순서 반영 (NO 업데이트)
+            $("#playlist-tbody, #selected-list, #detail-tbody").sortable({
+                cursor: "move", 
+                helper: "clone", 
+                opacity: 0.8,
+                stop: function(event, ui) {
+                    // 드래그가 끝나면 즉시 순서 번호를 다시 매깁니다.
+                    updateNumbers($(this));
+                }
+            });
+            
             $('#chk-all-main').change(function(){ $('.chk-pl').prop('checked', $(this).prop('checked')); });
             $('#chk-all-track').change(function(){ $('.chk-track').prop('checked', $(this).prop('checked')); });
             
-            if(!accessToken || accessToken === "null") console.error("Spotify 토큰 발급 실패");
+            if(!accessToken || accessToken === "null") alert("⚠ API 토큰 발급에 실패했습니다. (새로고침 필요)");
         });
+
+        // [추가] 순서 번호 자동 업데이트 함수
+        function updateNumbers($tbody) {
+            $tbody.find('tr').each(function(index) {
+                // 두 번째 td (NO 컬럼)의 텍스트를 현재 순서(index+1)로 변경
+                $(this).find('td').eq(1).text(index + 1);
+            });
+        }
 
         function hideAll(){ $('#view-main, #view-create, #view-detail').addClass('hidden'); }
         function getList(){ return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]; }
@@ -277,10 +359,11 @@
             const tb = $('#playlist-tbody').empty();
             $('#chk-all-main').prop('checked',false);
             
-            if(list.length==0) tb.html('<tr><td colspan="5" style="padding:40px; color:#ccc;">리스트가 없습니다.</td></tr>');
+            if(list.length==0) tb.html('<tr><td colspan="5" style="padding:50px; color:#ccc;">리스트가 없습니다.<br>오른쪽 상단 [만들기] 버튼을 눌러보세요!</td></tr>');
             else list.forEach((p,i)=>{
-                let pre = p.tracks.slice(0,2).map(t=>`<div>- \${t.title}</div>`).join('');
-                tb.append(`<tr class="draggable-row" data-id="\${p.id}"><td><input type="checkbox" class="chk-pl" value="\${p.id}"></td><td>\${i+1}</td><td style="text-align:left; padding-left:10px;"><div style="display:flex;align-items:center;"><img src="\${p.img||DEFAULT_IMG}" class="pl-cover" onclick="goDetail(\${p.id})"><div><div class="fw-bold" style="cursor:pointer;" onclick="goDetail(\${p.id})">\${p.title}</div><small class="text-muted">\${p.tracks.length}곡</small></div></div></td><td style="text-align:left; font-size:12px; color:#888;">\${pre}</td><td><button class="pl-btn" onclick="playAll(\${p.id})">▶</button></td></tr>`);
+                let pre = p.tracks.slice(0,2).map(t=> '<div><span style="color:#aaa;">♪</span> ' + t.title + '</div>').join('');
+                // [디자인 적용] btn-play-red 적용
+                tb.append('<tr class="draggable-row" data-id="' + p.id + '"><td><input type="checkbox" class="chk-pl" value="' + p.id + '"></td><td>' + (i+1) + '</td><td style="text-align:left; padding-left:15px;"><div style="display:flex;align-items:center;"><img src="' + (p.img||DEFAULT_IMG) + '" class="pl-cover" onclick="goDetail(' + p.id + ')"><div><div class="fw-bold" style="cursor:pointer; font-size:15px;" onclick="goDetail(' + p.id + ')">' + p.title + '</div><small class="text-muted">' + p.tracks.length + '곡</small></div></div></td><td style="text-align:left; font-size:12px; color:#666; padding-left:20px;">' + pre + '</td><td><button class="btn-play-red" onclick="playAll(' + p.id + ')"><i class="fas fa-play"></i></button></td></tr>');
             });
             loadSide();
         }
@@ -304,63 +387,136 @@
         }
 
         function switchTab(t){
+            currentTab = t;
             $('.dl-tab').removeClass('active');
+            $('#source-list').empty(); 
+
             if(t==='search'){
-                $('.dl-tab:eq(0)').addClass('active'); $('#toolbar-search').show(); $('#toolbar-chart').addClass('hidden');
-                $('#source-list').html('<div style="padding:20px; text-align:center; color:#999;">검색어를 입력하세요.</div>');
+                $('.dl-tab:eq(0)').addClass('active'); 
+                $('#toolbar-search').show(); 
+                $('#toolbar-chart').addClass('hidden');
+                $('#source-list').html('<div style="padding:40px; text-align:center; color:#ccc;"><i class="fas fa-search" style="font-size:30px; margin-bottom:10px; display:block;"></i>검색어를 입력하세요.</div>');
             } else {
-                $('.dl-tab:eq('+(t==='popular'?1:2)+')').addClass('active'); $('#toolbar-search').hide(); $('#toolbar-chart').removeClass('hidden');
-                fetchData(t==='popular'?"37i9dQZEVXbMDoHDwVN2tF":"37i9dQZF1DXcBWIGoYBM5M", true);
+                if(t==='popular') $('.dl-tab:eq(1)').addClass('active');
+                else $('.dl-tab:eq(2)').addClass('active');
+                
+                $('#toolbar-search').hide(); 
+                $('#toolbar-chart').removeClass('hidden');
+                updateTime();
+                
+                if(t==='popular') fetchPopular();
+                else fetchNewReleases();
             }
         }
 
-        async function fetchData(pid, isChart){
-            if(!accessToken) return alert("API 토큰이 없습니다.");
-            $('#source-list').html('<div style="padding:20px; text-align:center;">로딩 중...</div>');
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+            $('#chart-date').text(timeStr);
+        }
+
+        function refreshChart() {
+            updateTime();
+            if(currentTab === 'popular') fetchPopular();
+            else if(currentTab === 'new') fetchNewReleases();
+        }
+
+        async function fetchPopular(){
+            if(!accessToken) return;
+            $('#source-list').html('<div style="padding:20px; text-align:center;">인기 차트 로딩 중...</div>');
             try {
-                const res = await fetch(`https://api.spotify.com/v1/playlists/\${pid}/tracks?limit=20`, {headers:{'Authorization':'Bearer '+accessToken}});
+                const url = 'https://api.spotify.com/v1/search?q=\$' + encodeURIComponent('year:2025 k-pop') + '&type=track&limit=20';
+                const res = await fetch(url, {headers:{'Authorization':'Bearer '+accessToken}});
                 const d = await res.json();
-                sourceTracks = d.items.slice(0,20).map(i=>({
-                    id:i.track.id, 
-                    title:i.track.name.replace(/'/g,""), 
-                    artist:i.track.artists[0].name.replace(/'/g,""), 
-                    img:i.track.album.images[1]?.url||DEFAULT_IMG
+                
+                sourceTracks = d.tracks.items.map(t=>({
+                    id:t.id, 
+                    title:t.name.replace(/'/g,""), 
+                    artist:t.artists[0].name.replace(/'/g,""), 
+                    img: (t.album.images && t.album.images.length > 0) ? t.album.images[1]?.url || t.album.images[0].url : DEFAULT_IMG
                 }));
-                renderSrc(true);
-            } catch(e){ console.log(e); $('#source-list').html('데이터 로드 실패'); }
+                renderSrc('popular');
+            } catch(e) {
+                console.error(e);
+                $('#source-list').html('<div style="padding:20px; text-align:center; color:red;">로드 실패</div>');
+            }
+        }
+
+        async function fetchNewReleases(){
+            if(!accessToken) return;
+            $('#source-list').html('<div style="padding:20px; text-align:center;">최신 앨범 로딩 중...</div>');
+            try {
+                const url = 'https://api.spotify.com/v1/browse/new-releases?country=KR&limit=12';
+                const res = await fetch(url, {headers:{'Authorization':'Bearer '+accessToken}});
+                const d = await res.json();
+                
+                const items = d.albums ? d.albums.items : [];
+                if(items.length === 0) throw new Error("No data");
+
+                sourceTracks = items.map(i=>({
+                    id: i.id, 
+                    title: i.name.replace(/'/g,""), 
+                    artist: i.artists && i.artists.length > 0 ? i.artists[0].name.replace(/'/g,"") : "Unknown", 
+                    img: (i.images && i.images.length > 0) ? i.images[1]?.url || i.images[0].url : DEFAULT_IMG
+                }));
+                renderSrc('new');
+            } catch(e){ 
+                console.error(e); 
+                $('#source-list').html('<div style="padding:20px; text-align:center; color:red;">로드 실패</div>'); 
+            }
         }
 
         async function doSearch(){
             const k=$('#search-keyword').val(); if(!k) return;
             $('#source-list').html('<div style="padding:20px; text-align:center;">검색 중...</div>');
             try {
-                const res = await fetch(`https://api.spotify.com/v1/search?q=\${encodeURIComponent(k)}&type=track&limit=20`, {headers:{'Authorization':'Bearer '+accessToken}});
+                const url = 'https://api.spotify.com/v1/search?q=\$' + encodeURIComponent(k) + '&type=track&limit=20';
+                const res = await fetch(url, {headers:{'Authorization':'Bearer '+accessToken}});
                 const d = await res.json();
+                
                 sourceTracks = d.tracks.items.map(t=>({
                     id:t.id, 
                     title:t.name.replace(/'/g,""), 
                     artist:t.artists[0].name.replace(/'/g,""), 
-                    img:t.album.images[1]?.url||DEFAULT_IMG
+                    img: (t.album.images && t.album.images.length > 0) ? t.album.images[1]?.url || t.album.images[0].url : DEFAULT_IMG
                 }));
-                renderSrc(false);
-            } catch(e){ alert("검색 실패"); }
+                renderSrc('search');
+            } catch(e){ 
+                console.error(e);
+                alert("검색 실패"); 
+            }
         }
 
-        function renderSrc(isChart){
+        function renderSrc(type){
             const d=$('#source-list').empty();
             if(sourceTracks.length === 0) { d.html('<div style="padding:20px; text-align:center;">결과가 없습니다.</div>'); return; }
+            
             sourceTracks.forEach((t,i)=>{
-                const btn = isChart ? `<input type="checkbox" class="chk-src" value="\${i}">` : `<button class="pl-btn" onclick="addOne(\${i})">+</button>`;
-                d.append(`<div class="track-item"><div style="width:30px; text-align:center;">\${btn}</div><img src="\${t.img}" class="track-img"> <div class="track-info"><b>\${t.title}</b><br><span style="color:#888;">\${t.artist}</span></div> <button class="pl-btn" onclick="playOne('\${t.id}')">▶</button></div>`);
+                let rankHtml = '';
+                if(type === 'popular') {
+                    rankHtml = '<div class="track-rank">' + (i+1) + '</div>';
+                }
+
+                // [디자인 적용] btn-icon-play, btn-icon-add 사용
+                const btns = '<div class="track-btns">' + 
+                             '<button class="btn-icon-play" onclick="playOne(\'' + t.id + '\')"><i class="fas fa-play"></i></button>' +
+                             '<button class="btn-icon-add" onclick="addOne(' + i + ')"><i class="fas fa-plus"></i></button>' +
+                             '</div>';
+
+                d.append('<div class="track-item">' + 
+                            rankHtml + 
+                            '<img src="' + t.img + '" class="track-img">' + 
+                            '<div class="track-info"><b>' + t.title + '</b><br><span style="color:#888;">' + t.artist + '</span></div>' + 
+                            btns + 
+                         '</div>');
             });
         }
 
         function addOne(i){ const t=sourceTracks[i]; if(!tempTracks.some(x=>x.id==t.id)) tempTracks.push(t); renderSel(); }
-        function addChecked(){ $('.chk-src:checked').each(function(){ addOne($(this).val()); }); }
         
         function renderSel(){
             const d=$('#selected-list').empty(); $('#sel-cnt').text(tempTracks.length);
-            tempTracks.forEach((t,i)=> d.append(`<div class="track-item" data-id="\${t.id}" style="background:white; border-radius:4px; margin-bottom:5px;"><div style="width:30px; text-align:center;"><i class="fas fa-bars" style="color:#ccc;"></i></div><img src="\${t.img}" class="track-img"><div class="track-info"><b>\${t.title}</b><br>\${t.artist}</div><button onclick="tempTracks.splice(\${i},1);renderSel()" style="border:none; background:transparent;">×</button></div>`));
+            tempTracks.forEach((t,i)=> d.append('<div class="track-item" data-id="' + t.id + '" style="background:white; border-radius:8px; margin-bottom:6px; box-shadow:0 1px 3px rgba(0,0,0,0.05);"><div style="width:30px; text-align:center; color:#ccc;"><i class="fas fa-bars"></i></div><img src="' + t.img + '" class="track-img"><div class="track-info"><b>' + t.title + '</b><br><span style="color:#999;">' + t.artist + '</span></div><button onclick="tempTracks.splice(' + i + ',1);renderSel()" style="border:none; background:transparent; color:#aaa; font-size:16px;">×</button></div>'));
             d.scrollTop(d[0].scrollHeight);
         }
         function clearTemp(){ tempTracks=[]; renderSel(); }
@@ -390,18 +546,18 @@
         }
         function renderDetailTr(tr){
             const tb=$('#detail-tbody').empty(); $('#chk-all-track').prop('checked',false);
-            tr.forEach((t,i)=> tb.append(`<tr class="draggable-row" data-id="\${t.id}"><td><input type="checkbox" class="chk-track" value="\${t.id}"></td><td>\${i+1}</td><td style="text-align:left; padding-left:10px;"><img src="\${t.img}" style="width:40px;height:40px;border-radius:4px;margin-right:10px;vertical-align:middle;">\${t.title}</td><td>\${t.artist}</td><td><button class="pl-btn" onclick="playOne('\${t.id}')">▶</button></td></tr>`));
+            tr.forEach((t,i)=> tb.append('<tr class="draggable-row" data-id="' + t.id + '"><td><input type="checkbox" class="chk-track" value="' + t.id + '"></td><td>' + (i+1) + '</td><td style="text-align:left; padding-left:15px;"><div style="display:flex; align-items:center;"><img src="' + t.img + '" style="width:40px;height:40px;border-radius:4px;margin-right:12px;vertical-align:middle; border:1px solid #eee;"><span>' + t.title + '</span></div></td><td>' + t.artist + '</td><td><button class="btn-play-red" onclick="playOne(\'' + t.id + '\')"><i class="fas fa-play"></i></button></td></tr>'));
         }
         function goEdit(){ goCreate($('#view-detail').data('id')); }
         
         function playOne(id){ 
             $('#player-container').show(); 
-            $('#spotify-iframe').attr('src', `https://open.spotify.com/embed/track/\${id}?utm_source=generator&theme=0&autoplay=1`); 
+            $('#spotify-iframe').attr('src', 'https://open.spotify.com/embed/track/' + id + '?utm_source=generator&theme=0&autoplay=1'); 
         }
         function playAll(id){ const p=getList().find(x=>x.id==id); if(p&&p.tracks.length) playOne(p.tracks[0].id); else alert("곡이 없습니다."); }
         function playAllDetail(){ playAll($('#view-detail').data('id')); }
         
-        function deleteMain(){ const c=$('.chk-pl:checked'); if(!c.length)return; if(confirm("삭제?")){ let l=getList(); c.each(function(){l=l.filter(x=>x.id!=$(this).val())}); saveList(l); goMainView(); } }
+        function deleteMain(){ const c=$('.chk-pl:checked'); if(!c.length)return; if(confirm("선택한 플레이리스트를 삭제하시겠습니까?")){ let l=getList(); c.each(function(){l=l.filter(x=>x.id!=$(this).val())}); saveList(l); goMainView(); } }
         function saveOrderMain(){ let l=getList(), n=[]; $('#playlist-tbody tr').each(function(){ n.push(l.find(x=>x.id==$(this).data('id'))); }); saveList(n); goMainView(); }
         function playMain(){ const c=$('.chk-pl:checked'); if(c.length) playAll(c.val()); }
         
@@ -418,7 +574,7 @@
         }
         
         function delSelTrack(){
-            const c=$('.chk-track:checked'); if(!c.length)return; if(confirm("삭제?")){
+            const c=$('.chk-track:checked'); if(!c.length)return; if(confirm("선택한 곡을 삭제하시겠습니까?")){
                 const pid=$('#view-detail').data('id'); let l=getList(), idx=l.findIndex(x=>x.id==pid);
                 c.each(function(){ const tid=$(this).val(); l[idx].tracks=l[idx].tracks.filter(t=>t.id!=tid); });
                 saveList(l); goDetail(pid); loadSide();
@@ -429,7 +585,7 @@
         function loadSide(){
             const ul=$('#sidebar-list').empty(), l=getList();
             if(!l.length) ul.html('<li class="list-group-item small text-center text-muted">없음</li>');
-            else l.slice(0,5).forEach(p=>ul.append(`<li class="list-group-item d-flex justify-content-between" style="cursor:pointer;" onclick="goDetail(\${p.id})"><span class="text-truncate" style="max-width:120px;">\${p.title}</span><span class="badge bg-light text-dark">\${p.tracks.length}</span></li>`));
+            else l.slice(0,5).forEach(p=>ul.append('<li class="list-group-item d-flex justify-content-between" style="cursor:pointer;" onclick="goDetail(' + p.id + ')"><span class="text-truncate" style="max-width:120px;">' + p.title + '</span><span class="badge bg-light text-dark">' + p.tracks.length + '</span></li>'));
         }
     </script>
 </body>
