@@ -52,11 +52,15 @@
          → 모든 Spotify API 요청에 필요한 인증 헤더
     =============================== */
     class NewSong {
-        String title, artist, img;
-        NewSong(String t, String a, String i){
-            title=t; artist=a; img=i;
+        String id, title, artist, img;
+        NewSong(String id, String t, String a, String i){
+            this.id = id;  // track ID!
+            title = t;
+            artist = a;
+            img = i;
         }
     }
+
 
     List<NewSong> list = new ArrayList<>();
 
@@ -78,15 +82,14 @@
         apiBr.close();
 
         try {
-            JSONObject obj = new JSONObject(sb.toString());
+            JSONObject obj = new JSONObject(sb.toString()); 
             JSONArray items = obj.getJSONObject("albums").getJSONArray("items");
 
             for (int i=0; i<items.length(); i++){
                 JSONObject item = items.getJSONObject(i);
 
-                // 대표 메서드: item.getString("name")
-                // → JSON 내부 키(name)에 해당하는 앨범 이름 추출
-                String title = item.getString("name");
+                String albumId = item.getString("id");     // 앨범 ID 가져오기
+                String albumName = item.getString("name");
                 String artist = item.getJSONArray("artists")
                                     .getJSONObject(0)
                                     .getString("name");
@@ -96,22 +99,33 @@
                            ? imgs.getJSONObject(0).getString("url")
                            : "https://via.placeholder.com/60";
 
-                list.add(new NewSong(title, artist, img));
+                /* 🎵 [신규] 앨범의 첫 번째 곡(track) ID 가져오기 */
+                String trackId = "";
+
+                try {
+                    String trackApi = "https://api.spotify.com/v1/albums/" + albumId + "/tracks?market=KR&limit=1";
+                    HttpURLConnection tConn = (HttpURLConnection) new URL(trackApi).openConnection();
+                    tConn.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+                    BufferedReader tBr = new BufferedReader(new InputStreamReader(tConn.getInputStream(),"UTF-8"));
+                    StringBuilder tSb = new StringBuilder();
+                    String tLine;
+                    while((tLine = tBr.readLine()) != null) tSb.append(tLine);
+                    tBr.close();
+
+                    JSONObject tObj = new JSONObject(tSb.toString());
+                    JSONArray tItems = tObj.getJSONArray("items");
+
+                    if(tItems.length() > 0){
+                        trackId = tItems.getJSONObject(0).getString("id");
+                    }
+                } catch(Exception ignore){}
+
+                /* 리스트에 trackId 포함하여 저장 */
+                list.add(new NewSong(trackId, albumName, artist, img));
             }
-
-        } catch(Exception e){}
-    }
-
-    /* ===============================
-       [3] 오른쪽 플레이리스트 dummy
-       - index.jsp와 같은 사이드바 구조 유지 용도
-       - 대표 개념: new Playlist("플레이리스트1")
-    =============================== */
-    class Playlist { String name; Playlist(String n){name=n;} }
-    List<Playlist> playlistList = new ArrayList<>();
-    playlistList.add(new Playlist("플레이리스트1"));
-    playlistList.add(new Playlist("플레이리스트2"));
-    playlistList.add(new Playlist("플레이리스트3"));
+        } catch(Exception ignore) {}
+    }   // <-- accessToken if문 닫기
 %>
 
 <!DOCTYPE html>
@@ -167,7 +181,8 @@
                         <td><img src="<%= s.img %>" class="song-img"></td>
                         <td><%= s.title %></td>
                         <td><%= s.artist %></td>
-                        <td><button class="btn btn-main btn-sm">▶</button></td>
+                        <td><button class="btn btn-main btn-sm"
+        					onclick="playOne('<%= s.id %>')">▶</button></td>
                     </tr>
                 <% } %>
                 </tbody>
@@ -208,40 +223,74 @@
 
             <% } %>
 
-            <!-- 오른쪽: 플레이리스트 더미 -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="playlist-header">
-                        <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
-                        <button class="btn btn-sm btn-outline-danger">＋</button>
-                    </div>
-
-                    <ul class="list-group list-group-flush">
-                        <% for(int i=0;i<playlistList.size();i++){ %>
-                            <li class="list-group-item"><%= playlistList.get(i).name %></li>
-                        <% } %>
-                    </ul>
-                </div>
-            </div>
+            <!-- 오른쪽: 플레이리스트 -->
+	        <div class="card shadow-sm">
+	          <div class="card-body">
+	            <div class="playlist-header">
+	              <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
+	              <button class="btn btn-sm btn-outline-danger">＋</button>
+	            </div>
+					<ul class="list-group list-group-flush" id="sidebar-playlist">
+					    <!-- JS로 자동 채워짐 -->
+					</ul>
+	
+	          </div>
 
         </div>
 
     </div>
 </div>
 
-<!-- 하단 플레이어: 최신곡 페이지이므로 고정 텍스트 표시 -->
-<nav class="navbar fixed-bottom player-bar">
-    <div class="container" style="max-width:1200px;">
-        <div class="d-flex justify-content-between align-items-center w-100">
-            <span class="text-dark">재생 중: <b>최신 음악</b> - Spotify</span>
-            <div>
-                <button class="btn btn-outline-danger btn-sm">⏮</button>
-                <button class="btn btn-outline-danger btn-sm">▶</button>
-                <button class="btn btn-outline-danger btn-sm">⏭</button>
-            </div>
-        </div>
-    </div>
-</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 현재 로그인한 사용자 ID (JSP에서 가져옴)
+    const CURRENT_USER_ID = "<%= session.getAttribute("user_id") %>";
+
+    // 사용자별 LocalStorage 키
+    let STORAGE_KEY = null;
+
+    // 로그인한 경우만 고유 KEY를 만든다
+    if (CURRENT_USER_ID && CURRENT_USER_ID !== "null") {
+        STORAGE_KEY = "tomatoma_pl_user_" + CURRENT_USER_ID;
+    } else {
+        STORAGE_KEY = null;  // 로그아웃 상태
+    }
+
+    function getList(){
+        if (!STORAGE_KEY) return [];  // 로그인 안 되어 있으면 플레이리스트 없음
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    }
+
+    function loadSidebarPlaylist(){
+        const list = getList();
+        const ul = document.getElementById("sidebar-playlist");
+        ul.innerHTML = "";
+
+        // 로그인 안 한 경우
+        if (!STORAGE_KEY) {
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">로그인이 필요합니다.</li>';
+            return;
+        }
+
+        if(list.length === 0){
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">없음</li>';
+            return;
+        }
+
+        list.slice(0,5).forEach(function(p){
+            ul.innerHTML +=
+              '<li class="list-group-item d-flex justify-content-between align-items-center" ' +
+              'style="cursor:pointer;" ' +
+              'onclick="location.href=\'playlist.jsp?id=' + p.id + '\'">' +
+                '<span class="text-truncate" style="max-width:120px;">' + p.title + '</span>' +
+                '<span class="badge bg-light text-dark">' + p.tracks.length + '</span>' +
+              '</li>';
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadSidebarPlaylist);
+</script>
 
 </body>
 </html>

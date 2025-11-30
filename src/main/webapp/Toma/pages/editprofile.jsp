@@ -1,10 +1,44 @@
+<%@ page import="java.sql.*" %>
+<%@ page import="com.toma.db.ConnectionManager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <%
-    // 예시: 기존 사용자 정보 (DB 연동 전 임시 데이터)
-    String userName = "최예나";
-    String userIntro = "소개글을 등록해주세요.";
-    String profileImg = "image/profile_sample.png";
-    String backgroundImg = "image/profile_bg.png";
+    Integer userId = (Integer) session.getAttribute("user_id");
+    if(userId == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    String userName = "";
+    String userIntro = "";
+    String profileImg = "";
+    String backgroundImg = "";
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    try {
+        conn = ConnectionManager.getConnection();
+        String sql = "SELECT username, intro, profile_img, background_img FROM playlist_iduser WHERE user_id=?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, userId);
+        rs = pstmt.executeQuery();
+
+        if(rs.next()) {
+            userName = rs.getString("username");
+            userIntro = rs.getString("intro") == null ? "" : rs.getString("intro");
+            profileImg = rs.getString("profile_img");
+            backgroundImg = rs.getString("background_img");
+        }
+
+    } catch(Exception e) {
+        e.printStackTrace();
+    } finally {
+        if(rs!=null) rs.close();
+        if(pstmt!=null) pstmt.close();
+        if(conn!=null) conn.close();
+    }
 %>
 
 <html lang="ko">
@@ -58,13 +92,16 @@
 </head>
 <body>
 
-  <!-- 상단 로고 -->
-  <nav class="navbar navbar-expand-lg navbar-top">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="index.jsp"><span>TomaToma</span></a>
-      <img src="image/토마토.png" alt="작은 로고" style="height:80px; width:80px; position:absolute; right:0;">
-    </div>
-  </nav>
+	<!-- 상단 로고 -->
+	<nav class="navbar navbar-expand-lg navbar-top">
+	  <div class="container">
+	    <a class="navbar-brand d-flex align-items-center" href="index.jsp">
+	      <img src="<%=request.getContextPath()%>/Toma/images/logo.png" 
+	           alt="TomaToma Logo" 
+	           style="height: 55px;">
+	    </a>
+	  </div>
+	</nav>
 
   <!-- 프로필 수정 폼 -->
   <div class="form-section">

@@ -61,6 +61,7 @@
             "6YVMFz59CuY7ngCxTxjpxE", // aespa
             "6HvZYsbFfjnjFrWF950C9d", // NewJeans
             "70gP6Ry4Uo0Yx6uzPIdaiJ"  // BABYMONSTER
+            
         );
     } else if ("rap".equals(genre)) {
         artistIds = Arrays.asList(
@@ -98,12 +99,17 @@
 
     // [4] 아티스트별 top-tracks 호출해서 Song 리스트 만들기 (JSONObject / JSONArray로 파싱)
     class Song {
-        String title, artist, img;
-        int popularity;
-        Song(String t, String a, String i, int p) {
-            title = t; artist = a; img = i; popularity = p;
-        }
+    String id, title, artist, img;
+    int popularity;
+
+    Song(String id, String t, String a, String i, int p) {
+        this.id = id;
+        title = t;
+        artist = a;
+        img = i;
+        popularity = p;
     }
+}
 
     List<Song> songList = new ArrayList<>();
 
@@ -134,10 +140,10 @@
 
                 for (int i = 0; i < tracks.length(); i++) {
                     JSONObject t = tracks.getJSONObject(i);
+
+                    String trackId = t.getString("id");         // ★ 트랙 ID
                     String title = t.getString("name");
-                    String artistName = t.getJSONArray("artists")
-                                          .getJSONObject(0)
-                                          .getString("name");
+                    String artistName = t.getJSONArray("artists").getJSONObject(0).getString("name");
 
                     JSONArray imgs = t.getJSONObject("album").getJSONArray("images");
                     String img = (imgs.length() > 0)
@@ -145,7 +151,8 @@
                             : "https://via.placeholder.com/60";
 
                     int pop = t.optInt("popularity", 0);
-                    temp.add(new Song(title, artistName, img, pop));
+
+                    temp.add(new Song(trackId, title, artistName, img, pop));  // ★ trackId 포함
                 }
 
                 // 아티스트 내부에서 인기순 정렬 후 상위 3곡만 사용
@@ -161,21 +168,15 @@
     // [5] 전체 곡 인기순 정렬 후 Top 10만 남기기 (List.sort + subList)
     if (!songList.isEmpty()) {
         songList.sort((a,b) -> b.popularity - a.popularity);
-        if (songList.size() > 10)
-            songList = new ArrayList<>(songList.subList(0,10));
+        if (songList.size() > 15)
+            songList = new ArrayList<>(songList.subList(0,15));
     } else {
-        songList.add(new Song("데이터 없음", "없음", "https://via.placeholder.com/60", 0));
+        songList.add(new Song("no-id", "데이터 없음", "없음", "https://via.placeholder.com/60", 0));
     }
 
     String nowTitle  = songList.get(0).title;
     String nowArtist = songList.get(0).artist;
 
-    // [6] 오른쪽에 뿌릴 테스트용 플레이리스트 리스트 (index.jsp랑 맞추기용)
-    class Playlist { String name; Playlist(String n){name=n;} }
-    java.util.List<Playlist> playlistList = new java.util.ArrayList<>();
-    playlistList.add(new Playlist("플레이리스트1"));
-    playlistList.add(new Playlist("플레이리스트2"));
-    playlistList.add(new Playlist("플레이리스트3"));
 %>
 
 <!DOCTYPE html>
@@ -243,7 +244,10 @@
                     <td><img src="<%= s.img %>" class="song-img"></td>
                     <td><%= s.title %></td>
                     <td><%= s.artist %></td>
-                    <td><button class="btn btn-main btn-sm">▶</button></td>
+                    <td>
+					    <button class="btn btn-main btn-sm"
+					            onclick="playOne('<%= s.id %>')">▶</button>
+					</td>
                 </tr>
                 <% } %>
                 </tbody>
@@ -282,39 +286,72 @@
 
             <% } %>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="playlist-header">
-                        <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
-                        <button class="btn btn-sm btn-outline-danger">＋</button>
-                    </div>
-
-                    <ul class="list-group list-group-flush">
-                        <% for(int i=0; i<playlistList.size(); i++){ %>
-                            <li class="list-group-item"><%= playlistList.get(i).name %></li>
-                        <% } %>
-                    </ul>
-                </div>
-            </div>
+            <!-- 오른쪽: 플레이리스트 -->
+	        <div class="card shadow-sm">
+	          <div class="card-body">
+	            <div class="playlist-header">
+	              <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
+	              <button class="btn btn-sm btn-outline-danger">＋</button>
+	            </div>
+					<ul class="list-group list-group-flush" id="sidebar-playlist">
+					    <!-- JS로 자동 채워짐 -->
+					</ul>
+	
+	          </div>
 
         </div>
 
     </div>
 </div>
-			
-<!-- 하단 플레이어: 지금 1위 곡(nowTitle, nowArtist) 간단히 표시 -->
-<nav class="navbar fixed-bottom player-bar">
-    <div class="container" style="max-width:1200px;">
-        <div class="d-flex justify-content-between align-items-center w-100">
-            <span class="text-dark">재생 중: <b><%= nowTitle %></b> - <%= nowArtist %></span>
-            <div>
-                <button class="btn btn-outline-danger btn-sm">⏮</button>
-                <button class="btn btn-outline-danger btn-sm">▶</button>
-                <button class="btn btn-outline-danger btn-sm">⏭</button>
-            </div>
-        </div>
-    </div>
-</nav>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 현재 로그인한 사용자 ID (JSP에서 가져옴)
+    const CURRENT_USER_ID = "<%= session.getAttribute("user_id") %>";
+
+    // 사용자별 LocalStorage 키
+    let STORAGE_KEY = null;
+
+    // 로그인한 경우만 고유 KEY를 만든다
+    if (CURRENT_USER_ID && CURRENT_USER_ID !== "null") {
+        STORAGE_KEY = "tomatoma_pl_user_" + CURRENT_USER_ID;
+    } else {
+        STORAGE_KEY = null;  // 로그아웃 상태
+    }
+
+    function getList(){
+        if (!STORAGE_KEY) return [];  // 로그인 안 되어 있으면 플레이리스트 없음
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    }
+
+    function loadSidebarPlaylist(){
+        const list = getList();
+        const ul = document.getElementById("sidebar-playlist");
+        ul.innerHTML = "";
+
+        // 로그인 안 한 경우
+        if (!STORAGE_KEY) {
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">로그인이 필요합니다.</li>';
+            return;
+        }
+
+        if(list.length === 0){
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">없음</li>';
+            return;
+        }
+
+        list.slice(0,5).forEach(function(p){
+            ul.innerHTML +=
+              '<li class="list-group-item d-flex justify-content-between align-items-center" ' +
+              'style="cursor:pointer;" ' +
+              'onclick="location.href=\'playlist.jsp?id=' + p.id + '\'">' +
+                '<span class="text-truncate" style="max-width:120px;">' + p.title + '</span>' +
+                '<span class="badge bg-light text-dark">' + p.tracks.length + '</span>' +
+              '</li>';
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadSidebarPlaylist);
+</script>
 </body>
 </html>

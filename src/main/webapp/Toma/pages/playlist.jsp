@@ -2,8 +2,8 @@
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 <%
     // [1] 로그인 세션 확인
-    String username = (String) session.getAttribute("userName");
-    boolean isLoggedIn = (username != null);
+    String loginUsername = (String) session.getAttribute("userName");
+    boolean isLoggedIn = (loginUsername != null);
 
     // [2] Spotify API 서버 사이드 토큰 발급
     String clientId = "bb7cbbae7d4044ea9d0944a6ce53617c";
@@ -162,6 +162,19 @@
     <jsp:include page="../include/header.jsp">
         <jsp:param name="page" value="playlist"/>
     </jsp:include>
+	<%
+	    Integer userId = (Integer) session.getAttribute("user_id");
+	%>
+	
+	<% if (userId == null) { %>
+	
+	    <!-- 🔒 로그아웃 상태: 플레이리스트 비활성화 -->
+	    <div class="pl-container" style="text-align:center; padding:80px 20px;">
+	        <p style="color:#777; margin-top:10px;">나만의 플레이리스트를 만들기 위해선 로그인이 필요해요.</p>
+	        <a href="login.jsp" class="btn btn-main" style="margin-top:20px; padding:10px 30px;">로그인하기</a>
+	    </div>
+	
+	<% } else { %>
 
     <div class="pl-container">
         <div class="row">
@@ -275,25 +288,39 @@
                 </div>
             </div>
             
-            <div class="col-md-3">
-                <% if (!isLoggedIn) { %>
+
+        <!-- 오른쪽 사이드바 (index.jsp와 동일) -->
+        <div class="col-md-3">
+
+            <%
+                Integer LuserId = (Integer) session.getAttribute("user_id");
+                String username = (String) session.getAttribute("username");
+            %>
+
+            <% if (userId == null) { %>
+
+                <!-- 로그인 X -->
                 <div class="card shadow-sm mb-4">
-                  <div class="card-body text-center">
-                    <p class="text-muted small mb-3">로그인하고 기능을 이용해보세요!</p>
-                    <a href="login.jsp" class="btn btn-main w-100 mb-2 text-center shadow-sm">로그인</a>
-                    <a href="join.jsp" class="d-block small text-muted text-decoration-underline">회원가입</a>
-                  </div>
+                    <div class="card-body text-center">
+                        <p class="text-muted small mb-2">로그인하고 기능을 이용해보세요!</p>
+                        <a href="login.jsp" class="btn btn-main w-100 mb-2">로그인</a>
+                        <a href="join.jsp" class="d-block small text-muted">회원가입</a>
+                    </div>
                 </div>
-                <% } else { %>
+
+            <% } else { %>
+
+                <!-- 로그인 O -->
                 <div class="card shadow-sm mb-4">
-                  <div class="card-body text-center">
-                    <h6 class="fw-bold mb-1"><%= username %> 님</h6>
-                    <p class="small text-muted mb-3">환영합니다!</p>
-                    <a href="mypage.jsp" class="btn btn-main w-100 mb-2">마이페이지</a>
-                    <a href="logout.jsp" class="d-block small text-muted">로그아웃</a>
-                  </div>
+                    <div class="card-body text-center">
+                        <h6 class="fw-bold mb-1"><%= username %> 님</h6>
+                        <p class="small text-muted mb-3">환영합니다!</p>
+                        <a href="mypage.jsp" class="btn btn-main w-100 mb-2">마이페이지</a>
+                        <a href="logout.jsp" class="d-block small text-muted">로그아웃</a>
+                    </div>
                 </div>
-                <% } %>
+
+            <% } %>
                 
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -307,13 +334,27 @@
             </div>
         </div>
     </div>
-    
+<% } %>
+
     <div id="player-container"><iframe id="spotify-iframe" src=""></iframe></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const accessToken = "<%= serverAccessToken %>";
-        const STORAGE_KEY = 'tomatoma_pl_v6';
+     	// 로그인한 사용자 ID (null이면 로그아웃 상태)
+        const CURRENT_USER_ID = "<%=session.getAttribute("user_id")%>";
+
+    	 // 사용자별 LocalStorage Key
+        let STORAGE_KEY = null;
+
+        // CURRENT_USER_ID가 null도 아니고, "null" 문자도 아닐 때 = 로그인 상태
+        if (CURRENT_USER_ID && CURRENT_USER_ID !== "null") {
+            STORAGE_KEY = "tomatoma_pl_user_" + CURRENT_USER_ID;
+        } else {
+            STORAGE_KEY = null;   // 로그아웃 상태에서는 저장소를 사용하지 않음
+        }
+
+
         const DEFAULT_IMG = "<%=request.getContextPath()%>/image/토마토.png"; 
 
         let tempTracks=[], sourceTracks=[], editId=null, tempImg=null;
@@ -348,8 +389,15 @@
         }
 
         function hideAll(){ $('#view-main, #view-create, #view-detail').addClass('hidden'); }
-        function getList(){ return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]; }
-        function saveList(d){ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+        function getList(){
+            if (!STORAGE_KEY) return [];   // 로그아웃 상태 → 무조건 빈값
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        }
+        function saveList(d){
+            if (!STORAGE_KEY) return;  // 로그아웃 상태에서는 저장 불가
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+        }
+
         
         // 1. 메인 화면
         function goMainView(){

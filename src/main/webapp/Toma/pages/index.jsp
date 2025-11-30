@@ -1,3 +1,4 @@
+<!-- index.jsp // 메인 홈 화면 -->
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 
@@ -78,12 +79,21 @@
     );
 
     class ChartSong {
-        String title, artist, img;
+        String id;
+        String title;
+        String artist;
+        String img;
         int popularity;
-        ChartSong(String t, String a, String i, int p) {
-            title = t; artist = a; img = i; popularity = p;
+
+        ChartSong(String id, String title, String artist, String img, int popularity) {
+            this.id = id;
+            this.title = title;
+            this.artist = artist;
+            this.img = img;
+            this.popularity = popularity;
         }
     }
+
 
     List<ChartSong> chartSongs = new ArrayList<>();
 
@@ -106,12 +116,13 @@
                 for (int i = 0; i < tracks.length(); i++) {
                     JSONObject t = tracks.getJSONObject(i);
 
+                    String trackId = t.getString("id");
                     String title = t.getString("name");
                     String artist = t.getJSONArray("artists").getJSONObject(0).getString("name");
                     String img = t.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url");
                     int pop = t.optInt("popularity", 0);
 
-                    temp.add(new ChartSong(title, artist, img, pop));
+                    temp.add(new ChartSong(trackId, title, artist, img, pop));
                 }
 
                 // 인기순 정렬
@@ -168,9 +179,12 @@
 	
 	<h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
 	    인기곡
-	    <a href="chart_popular.jsp?genre=kpop" class="small text-danger text-decoration-none">
-	        더 보러가기 >>
-	    </a>
+			<a href="chart_popular.jsp?genre=kpop"
+			   class="text-danger text-decoration-none"
+			   style="font-size: 13px; opacity: .7; margin-top: 4px;">
+			    더보기 >
+			</a>
+
 	</h4>
 	
 	<ul class="list-group mb-4">
@@ -178,12 +192,12 @@
 	    <% for (ChartSong s : chartSongs) { %>
 	        <li class="list-group-item d-flex justify-content-between align-items-center">
 	            <div>
-	                <b><%= rank2++ %></b>
+					<b class="rank-number"><%= rank2++ %><span style="color:transparent;">...</span></b>
 	                <img src="<%= s.img %>" style="width:40px; height:40px; border-radius:6px; margin-right:10px;">
 	                <%= s.title %> - <%= s.artist %>
 	            </div>
 	            <button class="btn btn-main btn-sm" 
-	                    onclick="playOne('<%= s.title %>')">▶</button>
+	                    onclick="playOne('<%= s.id %>')">▶</button>
 	        </li>
 	    <% } %>
 	</ul>
@@ -247,21 +261,36 @@
   </div>
 
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const STORAGE_KEY = 'tomatoma_pl_v6';
+    // 현재 로그인한 사용자 ID (JSP에서 가져옴)
+    const CURRENT_USER_ID = "<%= session.getAttribute("user_id") %>";
 
-    // LocalStorage 불러오기
+    // 사용자별 LocalStorage 키
+    let STORAGE_KEY = null;
+
+    // 로그인한 경우만 고유 KEY를 만든다
+    if (CURRENT_USER_ID && CURRENT_USER_ID !== "null") {
+        STORAGE_KEY = "tomatoma_pl_user_" + CURRENT_USER_ID;
+    } else {
+        STORAGE_KEY = null;  // 로그아웃 상태
+    }
+
     function getList(){
+        if (!STORAGE_KEY) return [];  // 로그인 안 되어 있으면 플레이리스트 없음
         return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     }
 
     function loadSidebarPlaylist(){
         const list = getList();
         const ul = document.getElementById("sidebar-playlist");
-
         ul.innerHTML = "";
+
+        // 로그인 안 한 경우
+        if (!STORAGE_KEY) {
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">로그인이 필요합니다.</li>';
+            return;
+        }
 
         if(list.length === 0){
             ul.innerHTML = '<li class="list-group-item small text-center text-muted">없음</li>';
@@ -279,8 +308,8 @@
         });
     }
 
-
     document.addEventListener("DOMContentLoaded", loadSidebarPlaylist);
 </script>
+
 </body>
 </html>

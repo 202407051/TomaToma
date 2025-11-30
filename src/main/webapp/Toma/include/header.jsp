@@ -16,6 +16,8 @@
   <!-- custom CSS -->
   <link rel="stylesheet" href="<%=request.getContextPath()%>/css/toma.css?v=998">
 
+<script src="<%=request.getContextPath()%>/js/common.js"></script>
+
 </head>
 
 <body>
@@ -33,14 +35,12 @@
 
     <!-- 검색창 -->
     <div class="d-flex align-items-center ms-3 flex-grow-1" style="max-width: 1000px;">
-      <input class="form-control search-input" type="search" placeholder="감성 팝 플레이리스트">
-      <button class="btn btn-main ms-2">검색</button>
-    </div>
+      <form action="<%=request.getContextPath()%>/Toma/pages/search.jsp" method="get" class="d-flex align-items-center ms-3 flex-grow-1" style="max-width: 1000px;">
+		    <input name="q" class="form-control search-input" type="search" placeholder="곡 또는 아티스트 입력">
+		    <button class="btn btn-main ms-2" type="submit">검색</button>
+		</form>
 
-    <!-- 오른쪽 작은 로고 -->
-    <img src="<%=request.getContextPath()%>/Toma/images/tomato.png"
-         class="top-right-logo"
-         alt="작은 로고">
+    </div>
   </div>
 </nav>
 
@@ -56,7 +56,7 @@
       </li>
 
       <li class="nav-item mx-4">
-        <a class="nav-link <%= request.getParameter("page").equals("chart") ? "active" : "" %>"
+        <a class="nav-link <%= request.getParameter("page").equals("popular") ? "active" : "" %>"
            href="<%=request.getContextPath()%>/Toma/pages/chart_popular.jsp">인기차트</a>
       </li>
 
