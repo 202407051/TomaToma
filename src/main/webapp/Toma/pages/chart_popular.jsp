@@ -300,7 +300,7 @@
 
     </div>
 </div>
-
+			
 <!-- 하단 플레이어: 지금 1위 곡(nowTitle, nowArtist) 간단히 표시 -->
 <nav class="navbar fixed-bottom player-bar">
     <div class="container" style="max-width:1200px;">

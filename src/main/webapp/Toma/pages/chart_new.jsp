@@ -43,7 +43,7 @@
     } catch (Exception e) {
         accessToken = "";
     }
-
+		
     /* ===============================
        [2] Spotify 최신곡 가져오기
        - /browse/new-releases 로 최신 발매 앨범 20개 로딩
