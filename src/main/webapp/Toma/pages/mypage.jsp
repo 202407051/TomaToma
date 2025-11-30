@@ -1,15 +1,17 @@
+<!-- mypage.jsp // 마이페이지 화면 -->
 <%@ page import="java.sql.*" %>
 <%@ page import="com.toma.db.ConnectionManager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
-    // 로그인 안 했으면 로그인 페이지로 이동
+    // 로그인 체크 / 로그인 안 했으면 로그인 페이지로 이동
     Integer userId = (Integer) session.getAttribute("user_id");
     if(userId == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
+    // 프로필 기본 변수 선언
     String userName = "";
     String userIntro = "";
     String profileImg = "";
@@ -21,12 +23,15 @@
     ResultSet rs = null;
 
     try {
+    	// DB 연결 생성
         conn = ConnectionManager.getConnection();
+     	// SQL 준비 (로그인한 id로 프로필 정보 가져옴)
         String sql = "SELECT username, intro, profile_img, background_img FROM playlist_iduser WHERE user_id=?";
         pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, userId);
         rs = pstmt.executeQuery();
 
+    	// 불러온 데이터 변수에 저장
         if(rs.next()) {
             userName = rs.getString("username");
             userIntro = rs.getString("intro") == null ? "소개글을 등록해주세요." : rs.getString("intro");
@@ -41,12 +46,9 @@
         if(pstmt != null) pstmt.close();
         if(conn != null) conn.close();
     }
-
-    java.util.List<String> likedSongs =
-        java.util.Arrays.asList("노래1 - 아티스트A", "노래2 - 아티스트B", "노래3 - 아티스트C");
 %>
 
-<!-- 공통 header 포함 (메뉴 active = mypage) -->
+<!-- 공통 헤더 메뉴바 -->
 <jsp:include page="../include/header.jsp">
     <jsp:param name="page" value="mypage"/>
 </jsp:include>
@@ -117,7 +119,7 @@
         return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     }
 
-    // 🎯 마이페이지 플레이리스트 불러오기
+    // 마이페이지 플레이리스트 불러오기
     function loadMyPagePlaylist(){
         const list = getList();
         const container = document.getElementById("mypage-playlist");
@@ -147,7 +149,7 @@
         });
     }
 
-    // 🎯 마이페이지 전용 로더 실행
+    // 마이페이지 전용 로더 실행
     document.addEventListener("DOMContentLoaded", loadMyPagePlaylist);
 </script>
 

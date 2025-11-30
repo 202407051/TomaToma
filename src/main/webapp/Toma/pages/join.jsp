@@ -1,3 +1,4 @@
+<!-- join.jsp // 회원가입 화면 -->
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <!DOCTYPE html>
@@ -17,7 +18,7 @@
 </head>
 <body>
 
-<!-- 공통 Header -->
+<!-- 공통 헤더 메뉴바 -->
 <jsp:include page="../include/header.jsp">
     <jsp:param name="page" value="join"/>
 </jsp:include>
@@ -48,7 +49,7 @@
             <label class="fw-bold mb-1 mt-3">비밀번호</label>
             <input class="form-control mb-4" type="password" name="password" required placeholder="비밀번호 입력">
 
-            <!-- 제출 버튼 -->
+            <!-- 회원가입 버튼 -->
             <button class="btn btn-main w-100" type="submit">회원가입</button>
         </form>
 

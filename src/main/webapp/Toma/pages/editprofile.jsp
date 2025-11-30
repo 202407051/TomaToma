@@ -1,30 +1,37 @@
+<!-- editprofile.jsp // 프로필 수정 화면 -->
 <%@ page import="java.sql.*" %>
 <%@ page import="com.toma.db.ConnectionManager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
+	// 로그인 체크 / 로그인 안 했으면 로그인 페이지로 이동
     Integer userId = (Integer) session.getAttribute("user_id");
     if(userId == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
+    // 프로필 기본 변수 선언
     String userName = "";
     String userIntro = "";
     String profileImg = "";
     String backgroundImg = "";
 
+    // DB에서 사용자 정보 불러오기
     Connection conn = null;
     PreparedStatement pstmt = null;
     ResultSet rs = null;
 
     try {
+    	// DB 연결 생성
         conn = ConnectionManager.getConnection();
-        String sql = "SELECT username, intro, profile_img, background_img FROM playlist_iduser WHERE user_id=?";
+		// SQL 준비 (로그인한 id로 프로필 정보 가져옴)
+    	String sql = "SELECT username, intro, profile_img, background_img FROM playlist_iduser WHERE user_id=?";
         pstmt = conn.prepareStatement(sql);
         pstmt.setInt(1, userId);
         rs = pstmt.executeQuery();
 
+        // 불러온 데이터 변수에 저장
         if(rs.next()) {
             userName = rs.getString("username");
             userIntro = rs.getString("intro") == null ? "" : rs.getString("intro");
@@ -48,6 +55,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Poppins:wght@600&display=swap" rel="stylesheet">
   <style>
+    <!-- CSS -->
     body { background-color: #f8f9fa; font-family: 'Noto Sans KR', sans-serif; }
 
     .navbar-top { background-color: #fff; padding: 20px 0; }
@@ -106,7 +114,8 @@
   <!-- 프로필 수정 폼 -->
   <div class="form-section">
     <h4>프로필 수정</h4>
-
+    
+	<!-- submit 시 updateProfile.jsp로 전송됨 -->
     <form action="updateProfile.jsp" method="post" enctype="multipart/form-data">
       <!-- 배경 사진 -->
       <div class="mb-4">
@@ -122,7 +131,7 @@
         <input type="file" class="form-control" name="profileImg" accept="image/*" onchange="previewImage(event, 'profilePreview')">
       </div>
 
-      <!-- 이름 -->
+      <!-- 이름 / DB에서 불러온 이름 자동으로 입력됨 -->
       <div class="mb-3">
         <label class="form-label fw-bold">이름</label>
         <input type="text" class="form-control" name="userName" value="<%=userName%>" required>
@@ -134,6 +143,7 @@
         <textarea class="form-control" name="userIntro" rows="3"><%=userIntro%></textarea>
       </div>
 
+	  <!-- 저장버튼 -->
       <div class="d-flex justify-content-between mt-4">
         <a href="mypage.jsp" class="btn btn-outline-secondary">취소</a>
         <button type="submit" class="btn btn-main">저장하기</button>
@@ -142,7 +152,7 @@
   </div>
 
   <script>
-    // 미리보기 기능
+    // 이미지 미리보기 기능(js)
     function previewImage(event, previewId) {
       const reader = new FileReader();
       reader.onload = function(){

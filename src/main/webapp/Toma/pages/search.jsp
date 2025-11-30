@@ -1,7 +1,9 @@
+<!-- search.jsp // 검색 기능 -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 
 <%
+	// 기본 설정, 검색어 받기
     request.setCharacterEncoding("UTF-8");
 
     String query = request.getParameter("q");
@@ -30,7 +32,7 @@
 
     String accessToken = new JSONObject(tokenRaw).getString("access_token");
 
-    // Spotify 검색 API
+    // Spotify 검색 API 호출
     List<Map<String,String>> results = new ArrayList<>();
     try {
         String apiUrl = "https://api.spotify.com/v1/search?q=" + encodedQuery + "&type=track&limit=30&market=KR";
@@ -43,11 +45,13 @@
         br.close();
 
         JSONObject obj = new JSONObject(raw);
+        //Spotify에서 반환되는 JSON을 읽은 뒤 파싱
         JSONArray items = obj.getJSONObject("tracks").getJSONArray("items");
 
         for(int i=0; i < items.length(); i++){
             JSONObject tr = items.getJSONObject(i);
 
+            // 각 검색 결과마다 필요한 데이터만 추출해서 map에 저장
             Map<String,String> map = new HashMap<>();
             map.put("id", tr.getString("id"));
             map.put("title", tr.getString("name"));
@@ -65,6 +69,7 @@
     <meta charset="UTF-8">
     <title>TomaToma - 검색 결과</title>
 
+	<!-- 공통 헤더 메뉴바 -->
     <jsp:include page="../include/header.jsp">
         <jsp:param name="page" value="search"/>
     </jsp:include>
@@ -72,7 +77,7 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/toma.css">
 
     <style>
-        /* 검색 결과 카드 */
+        <!-- CSS -->
         .song-card {
             display:flex;
             align-items:center;
@@ -144,17 +149,18 @@
 </head>
 
 <body>
-
+<!-- 검색 결과 강조 -->
 <div class="container my-4" style="max-width:1150px;">
     <div class="search-title mb-4">
 	    검색 결과 <span class="keyword">"<%=query%>"</span>
 	</div>
 
-
+	<!-- 검색 결과 없는 경우 -->
     <% if(results.size() == 0){ %>
         <p class="text-muted">검색 결과가 없습니다.</p>
     <% } else { %>
 
+		<!-- 검색 결과 카드 출력 -->
         <% for(Map<String,String> s : results){ %>
         <div class="song-card">
             <img src="<%= s.get("img") %>" class="song-img">

@@ -10,14 +10,17 @@
 
     URL url = new URL("https://accounts.spotify.com/api/token");
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    // POST 방식으로 토큰 요청 보냄
     conn.setRequestMethod("POST");
     conn.setDoOutput(true);
     conn.setRequestProperty("Authorization", "Basic " + auth);
     conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
+    // Stream에 바디 데이터 입력
     String body = "grant_type=client_credentials";
     conn.getOutputStream().write(body.getBytes());
 
+    // 응답(JSON) 전체 읽어 Access 토큰 추출
     BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
     String line, apiResponse = "";
     while ((line = br.readLine()) != null) apiResponse += line;
@@ -25,7 +28,7 @@
 
     String token = new JSONObject(apiResponse).getString("access_token");
 
-    // Spotify – 신규 앨범 8개
+    // Spotify – 신규 앨범 8개 불러오기
     URL apiUrl = new URL("https://api.spotify.com/v1/browse/new-releases?country=KR&limit=8");
     HttpURLConnection apiConn = (HttpURLConnection) apiUrl.openConnection();
     apiConn.setRequestProperty("Authorization", "Bearer " + token);
@@ -48,22 +51,6 @@
         albumList.add(new Album(cover, title, artist));
     }
 
-    // 예시 인기곡 / 플레이리스트 / 현재재생
-    class Song { int rank; String title, artist; Song(int r,String t,String a){rank=r;title=t;artist=a;} }
-    class Playlist { String name; Playlist(String n){name=n;} }
-    class CurrentSong { String title, artist; CurrentSong(String t,String a){title=t;artist=a;} }
-
-    java.util.List<Song> popularSongs = new java.util.ArrayList<>();
-    popularSongs.add(new Song(1,"노래1","아티스트A"));
-    popularSongs.add(new Song(2,"노래2","아티스트B"));
-    popularSongs.add(new Song(3,"노래3","아티스트C"));
-
-    java.util.List<Playlist> playlistList = new java.util.ArrayList<>();
-    playlistList.add(new Playlist("플레이리스트1"));
-    playlistList.add(new Playlist("플레이리스트2"));
-    playlistList.add(new Playlist("플레이리스트3"));
-
-    CurrentSong currentSong = new CurrentSong("노래1","아티스트A");
     
     // ===============================
     // Spotify 인기곡 API (K-POP 상위 10곡)
@@ -78,6 +65,7 @@
         "70gP6Ry4Uo0Yx6uzPIdaiJ"  // BABYMONSTER
     );
 
+    // track id, 제목, 아티스트명, 이미지, popularity 가져온 뒤 클래스에 담음
     class ChartSong {
         String id;
         String title;
@@ -137,7 +125,7 @@
         }
     }
 
-    // 전체 인기순 정렬 후 10곡만 사용
+    // 전체 인기순 정렬 후 5곡만 사용
     chartSongs.sort((a, b) -> b.popularity - a.popularity);
     if (chartSongs.size() > 5)
         chartSongs = new ArrayList<>(chartSongs.subList(0, 5));
@@ -149,7 +137,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TomaToma</title>
-
+	<!-- 공통 헤더 메뉴바 -->
 	<jsp:include page="../include/header.jsp">
 	    <jsp:param name="page" value="home" />
 	</jsp:include>
@@ -196,6 +184,7 @@
 	                <img src="<%= s.img %>" style="width:40px; height:40px; border-radius:6px; margin-right:10px;">
 	                <%= s.title %> - <%= s.artist %>
 	            </div>
+	            <!-- 플레이 버튼(▶) 클릭 시 Spotify 트랙 ID를 JS로 보냄 -->
 	            <button class="btn btn-main btn-sm" 
 	                    onclick="playOne('<%= s.id %>')">▶</button>
 	        </li>
@@ -205,7 +194,7 @@
 
       </div>
 
-      <!-- 오른쪽: 로그인 / 나의 플레이리스트 (원래대로) -->
+      <!-- 오른쪽: 로그인 / 나의 플레이리스트 -->
 	   <div class="col-md-3">
 	
 		<%
@@ -269,7 +258,7 @@
     // 사용자별 LocalStorage 키
     let STORAGE_KEY = null;
 
-    // 로그인한 경우만 고유 KEY를 만든다
+    // 로그인한 경우만 고유 KEY를 만듦
     if (CURRENT_USER_ID && CURRENT_USER_ID !== "null") {
         STORAGE_KEY = "tomatoma_pl_user_" + CURRENT_USER_ID;
     } else {

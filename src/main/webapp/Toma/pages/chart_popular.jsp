@@ -1,3 +1,4 @@
+<!-- chart_new.jsp // 인기차트 화면 -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 

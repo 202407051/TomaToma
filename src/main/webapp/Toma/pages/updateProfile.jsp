@@ -1,3 +1,4 @@
+<!-- updateProfile.jsp // 프로필 수정 처리 -->
 <%@ page import="java.sql.*" %>
 <%@ page import="com.toma.db.ConnectionManager" %>
 <%@ page import="com.oreilly.servlet.MultipartRequest" %>
@@ -12,7 +13,7 @@
         return;
     }
 
-    // 업로드 저장 경로 (★ 네 폴더 구조 기준)
+    // 업로드 저장 경로
     String savePath = application.getRealPath("/Toma/uploads/profile");
     int maxSize = 10 * 1024 * 1024; // 10MB
 
