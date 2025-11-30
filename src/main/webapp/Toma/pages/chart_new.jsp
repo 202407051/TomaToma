@@ -128,7 +128,7 @@
         <td><img src="<%=s.img%>" class="song-img"></td>
         <td><%=s.title%></td>
         <td><%=s.artist%></td>
-        <td><button class="btn btn-main btn-sm">▶</button></td>
+        <td><button class="btn btn-main btn-sm" onclick="playOne('4iV5W9uYEdYUVa79Axb7Rh')">▶</button></td>
       </tr>
       <% } %>
     </tbody>

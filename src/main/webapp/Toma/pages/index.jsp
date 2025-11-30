@@ -63,6 +63,73 @@
     playlistList.add(new Playlist("플레이리스트3"));
 
     CurrentSong currentSong = new CurrentSong("노래1","아티스트A");
+    
+    // ===============================
+    // Spotify 인기곡 API (K-POP 상위 10곡)
+    // ===============================
+
+    // 인기 아티스트 5명
+    List<String> artistIds2 = Arrays.asList(
+        "3Nrfpe0tUJi4K4DXYWgMUX", // BTS
+        "6RHTUrRF63xao58xh9FXYJ", // IVE
+        "6YVMFz59CuY7ngCxTxjpxE", // aespa
+        "6HvZYsbFfjnjFrWF950C9d", // NewJeans
+        "70gP6Ry4Uo0Yx6uzPIdaiJ"  // BABYMONSTER
+    );
+
+    class ChartSong {
+        String title, artist, img;
+        int popularity;
+        ChartSong(String t, String a, String i, int p) {
+            title = t; artist = a; img = i; popularity = p;
+        }
+    }
+
+    List<ChartSong> chartSongs = new ArrayList<>();
+
+    if (!token.equals("")) {
+        for (String artistId : artistIds2) {
+            URL topUrl = new URL("https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=KR");
+            HttpURLConnection topConn = (HttpURLConnection) topUrl.openConnection();
+            topConn.setRequestProperty("Authorization", "Bearer " + token);
+
+            BufferedReader topBr = new BufferedReader(new InputStreamReader(topConn.getInputStream()));
+            StringBuilder sbTop = new StringBuilder();
+            String lineTop;
+            while ((lineTop = topBr.readLine()) != null) sbTop.append(lineTop);
+            topBr.close();
+
+            try {
+                JSONArray tracks = new JSONObject(sbTop.toString()).getJSONArray("tracks");
+
+                List<ChartSong> temp = new ArrayList<>();
+                for (int i = 0; i < tracks.length(); i++) {
+                    JSONObject t = tracks.getJSONObject(i);
+
+                    String title = t.getString("name");
+                    String artist = t.getJSONArray("artists").getJSONObject(0).getString("name");
+                    String img = t.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url");
+                    int pop = t.optInt("popularity", 0);
+
+                    temp.add(new ChartSong(title, artist, img, pop));
+                }
+
+                // 인기순 정렬
+                temp.sort((a, b) -> b.popularity - a.popularity);
+
+                // 상위 3곡만 가져오기
+                for (int i = 0; i < 3 && i < temp.size(); i++) {
+                    chartSongs.add(temp.get(i));
+                }
+
+            } catch (Exception ignore) {}
+        }
+    }
+
+    // 전체 인기순 정렬 후 10곡만 사용
+    chartSongs.sort((a, b) -> b.popularity - a.popularity);
+    if (chartSongs.size() > 5)
+        chartSongs = new ArrayList<>(chartSongs.subList(0, 5));
 %>
 
 <!doctype html>
@@ -98,17 +165,29 @@
             <% } %>
           </div>
         </div>
+	
+	<h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+	    인기곡
+	    <a href="chart_popular.jsp?genre=kpop" class="small text-danger text-decoration-none">
+	        더 보러가기 >>
+	    </a>
+	</h4>
+	
+	<ul class="list-group mb-4">
+	    <% int rank2 = 1; %>
+	    <% for (ChartSong s : chartSongs) { %>
+	        <li class="list-group-item d-flex justify-content-between align-items-center">
+	            <div>
+	                <b><%= rank2++ %></b>
+	                <img src="<%= s.img %>" style="width:40px; height:40px; border-radius:6px; margin-right:10px;">
+	                <%= s.title %> - <%= s.artist %>
+	            </div>
+	            <button class="btn btn-main btn-sm" 
+	                    onclick="playOne('<%= s.title %>')">▶</button>
+	        </li>
+	    <% } %>
+	</ul>
 
-        <!-- 인기곡 (바깥 배경은 페이지 기본 — 흰색) -->
-        <h4 class="fw-bold mb-3">인기곡</h4>
-        <ul class="list-group mb-4">
-          <% for(int i=0;i<popularSongs.size();i++){ Song s = popularSongs.get(i); %>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span><%=s.rank%>. <%=s.title%> - <%=s.artist%></span>
-              <button class="btn btn-main btn-sm">재생</button>
-            </li>
-          <% } %>
-        </ul>
 
       </div>
 
@@ -157,31 +236,51 @@
               <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
               <button class="btn btn-sm btn-outline-danger">＋</button>
             </div>
-            <ul class="list-group list-group-flush">
-              <% for(int i=0;i<playlistList.size();i++){ %>
-                <li class="list-group-item"><%=playlistList.get(i).name%></li>
-              <% } %>
-            </ul>
+				<ul class="list-group list-group-flush" id="sidebar-playlist">
+				    <!-- JS로 자동 채워짐 -->
+				</ul>
+
           </div>
        	 </div>
 		</div>
     </div>
   </div>
 
-  <!-- 하단 플레이어 -->
-  <nav class="navbar fixed-bottom player-bar">
-    <div class="container" style="max-width:1200px;">
-      <div class="d-flex justify-content-between align-items-center w-100">
-        <span class="text-dark">재생 중: <b><%=currentSong.title%></b> - <%=currentSong.artist%></span>
-        <div>
-          <button class="btn btn-outline-danger btn-sm">⏮</button>
-          <button class="btn btn-outline-danger btn-sm">▶</button>
-          <button class="btn btn-outline-danger btn-sm">⏭</button>
-        </div>
-      </div>
-    </div>
-  </nav>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const STORAGE_KEY = 'tomatoma_pl_v6';
+
+    // LocalStorage 불러오기
+    function getList(){
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    }
+
+    function loadSidebarPlaylist(){
+        const list = getList();
+        const ul = document.getElementById("sidebar-playlist");
+
+        ul.innerHTML = "";
+
+        if(list.length === 0){
+            ul.innerHTML = '<li class="list-group-item small text-center text-muted">없음</li>';
+            return;
+        }
+
+        list.slice(0,5).forEach(function(p){
+            ul.innerHTML +=
+              '<li class="list-group-item d-flex justify-content-between align-items-center" ' +
+              'style="cursor:pointer;" ' +
+              'onclick="location.href=\'playlist.jsp?id=' + p.id + '\'">' +
+                '<span class="text-truncate" style="max-width:120px;">' + p.title + '</span>' +
+                '<span class="badge bg-light text-dark">' + p.tracks.length + '</span>' +
+              '</li>';
+        });
+    }
+
+
+    document.addEventListener("DOMContentLoaded", loadSidebarPlaylist);
+</script>
 </body>
 </html>

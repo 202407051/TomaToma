@@ -163,7 +163,7 @@
         <jsp:param name="page" value="playlist"/>
     </jsp:include>
 
-    <div class="container pl-container">
+    <div class="pl-container">
         <div class="row">
             <div class="col-md-9">
                 

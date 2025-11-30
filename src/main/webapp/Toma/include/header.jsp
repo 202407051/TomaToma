@@ -15,6 +15,7 @@
 
   <!-- custom CSS -->
   <link rel="stylesheet" href="<%=request.getContextPath()%>/css/toma.css?v=998">
+
 </head>
 
 <body>
@@ -78,4 +79,10 @@
     </ul>
   </div>
 </nav>
+<!-- ===== 공통 Spotify 플레이어 ===== -->
+<div id="player-container"
+     style="display:none; position:fixed; bottom:0; left:0; width:100%; height:80px; background:#000; z-index:9999; border-top:3px solid #FF4B4B;">
+    <iframe id="spotify-iframe" style="width:100%; height:100%; border:none;"></iframe>
+</div>
 
+</body>

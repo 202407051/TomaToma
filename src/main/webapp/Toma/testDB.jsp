@@ -11,10 +11,10 @@
 <%
     Connection conn = ConnectionManager.getConnection();
     if (conn != null) {
-        out.println("DB 연결 성공!");
+        out.println("DB 연결 성공");
         conn.close();
     } else {
-        out.println("DB 연결 실패 ㅠㅠ");
+        out.println("DB 연결 실패");
     }
 %>
 </body>
