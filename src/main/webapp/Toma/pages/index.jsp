@@ -72,23 +72,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TomaToma</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Poppins:wght@600&display=swap" rel="stylesheet">
-
-  <!-- custom CSS -->
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/toma.css">
+	<jsp:include page="../include/header.jsp">
+	    <jsp:param name="page" value="home" />
+	</jsp:include>
 </head>
 <body>
-
-<jsp:include page="../include/header.jsp">
-    <jsp:param name="page" value="home"/>
-</jsp:include>
-
-
-
 
   <!-- 메인: 최신 앨범(회색 박스)만 회색, 나머지는 흰색 -->
   <div class="container my-4" style="max-width:1200px;">
@@ -125,14 +113,44 @@
       </div>
 
       <!-- 오른쪽: 로그인 / 나의 플레이리스트 (원래대로) -->
-      <div class="col-md-3">
-        <div class="card shadow-sm mb-4">
-          <div class="card-body text-center">
-            <button class="btn btn-main w-100 mb-2">로그인</button>
-            <a href="#" class="d-block small text-muted">회원가입</a>
-          </div>
-        </div>
-
+	   <div class="col-md-3">
+	
+		<%
+		    Integer userId = (Integer) session.getAttribute("user_id");
+		    String username = (String) session.getAttribute("username");
+		
+		    if(userId == null) {
+		%>
+		
+		    <!-- 로그인 안 된 상태 -->
+		    <div class="card shadow-sm mb-4">
+		      <div class="card-body text-center">
+		       <p class="text-muted small mb-2">로그인하고 기능을 이용해보세요!</p>
+		        <a href="login.jsp" class="btn btn-main w-100 mb-2 text-center">로그인</a>
+		        <a href="join.jsp" class="d-block small text-muted">회원가입</a>
+		      </div>
+		    </div>
+		
+		<%
+		    } else {
+		%>
+		
+		    <!-- 로그인 된 상태: 내 정보 표시 -->
+		    <div class="card shadow-sm mb-4">
+		      <div class="card-body text-center">
+		
+		        <h6 class="fw-bold mb-1"><%= username %> 님</h6>
+		        <p class="small text-muted mb-3">환영합니다!</p>
+		
+		        <a href="mypage.jsp" class="btn btn-main w-100 mb-2">마이페이지</a>
+		        <a href="logout.jsp" class="d-block small text-muted">로그아웃</a>
+		      </div>
+		    </div>
+		
+		<%
+		    }
+		%>
+		
         <div class="card shadow-sm">
           <div class="card-body">
             <div class="playlist-header">
@@ -145,9 +163,8 @@
               <% } %>
             </ul>
           </div>
-        </div>
-      </div>
-
+       	 </div>
+		</div>
     </div>
   </div>
 
