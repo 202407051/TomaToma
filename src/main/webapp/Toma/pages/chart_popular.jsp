@@ -1,12 +1,10 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*, java.net.*, java.util.*, org.json.*" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
 
-    // ===============================
-    // 0) 장르 파라미터
-    // ===============================
+    // [1] 장르 파라미터 처리: URL에서 genre 값 읽기 (request.getParameter 사용)
     String genre = request.getParameter("genre");
     if (genre == null) genre = "kpop";
 
@@ -18,9 +16,7 @@
     else if ("indie".equals(genre)) titleText = "한국 인디 인기차트";
     else                            titleText = "인기차트";
 
-    // ===============================
-    // 1) Spotify Token 발급 (Client Credentials)
-    // ===============================
+    // [2] Spotify 토큰 발급: clientId/secret → access_token 받기 (Base64 + HttpURLConnection)
     String clientId     = "bb7cbbae7d4044ea9d0944a6ce53617c";
     String clientSecret = "c19cc7e8110b48a2add2726da9eefd9d";
 
@@ -55,15 +51,10 @@
         accessToken = "";
     }
 
-    // 토큰 실패하면 곡 목록 대신 더미 한 줄만 띄우게 할 거라,
-    // 여기서 바로 에러 내지 않고 아래에서 처리.
-    // ===============================
-    // 2) 장르별 아티스트 ID 목록
-    // ===============================
+    // [3] 장르별 아티스트 ID 목록 세팅 (Arrays.asList로 고정 리스트 만듦)
     List<String> artistIds = new ArrayList<>();
 
     if ("kpop".equals(genre)) {
-        // K-POP: BTS, IVE, aespa, NewJeans, BABYMONSTER
         artistIds = Arrays.asList(
             "3Nrfpe0tUJi4K4DXYWgMUX", // BTS
             "6RHTUrRF63xao58xh9FXYJ", // IVE
@@ -72,7 +63,6 @@
             "70gP6Ry4Uo0Yx6uzPIdaiJ"  // BABYMONSTER
         );
     } else if ("rap".equals(genre)) {
-        // 한국 랩 / 힙합
         artistIds = Arrays.asList(
             "5NUVwRESNqYBUTRbiATjy7", // BE'O
             "4XpUIb8uuNlIWVKmgKZXC0", // ZICO
@@ -81,37 +71,32 @@
             "7cEaNXXTHx3LokbjUUyHal"  // BIG Naughty
         );
     } else if ("ballad".equals(genre)) {
-        // 발라드
         artistIds = Arrays.asList(
-            "4dB2XmMpzPxsMRnt62TbF5", // Lim Chang Jung
-            "7jFUYMpMUBDL4JQtMZ5ilc", // Sung Si Kyung
-            "12AUp9oqeJDhNfO6IhQiNi", // Lee Seung Gi
-            "16sxdaE9mk0Kis9CTP7Uot", // Lee Seok Hoon
-            "4qRXrzUmdy3p33lgvJEzdv"  // Paul Kim
+            "4dB2XmMpzPxsMRnt62TbF5",
+            "7jFUYMpMUBDL4JQtMZ5ilc",
+            "12AUp9oqeJDhNfO6IhQiNi",
+            "16sxdaE9mk0Kis9CTP7Uot",
+            "4qRXrzUmdy3p33lgvJEzdv"
         );
     } else if ("band".equals(genre)) {
-        // 밴드
         artistIds = Arrays.asList(
-            "5TnQc2N1iKlFjYD7CPGvFc", // DAY6
-            "5WY88tCMFA6J6vqSN3MmDZ", // NELL
-            "2SY6OktZyMLdOnscX3DCyS", // JANNABI
-            "71kRpwy6xTeG2OXXkRJdkA", // Guckkasten
-            "07OePkse2fcvU9wlVftNMl"  // SE SO NEON
+            "5TnQc2N1iKlFjYD7CPGvFc",
+            "5WY88tCMFA6J6vqSN3MmDZ",
+            "2SY6OktZyMLdOnscX3DCyS",
+            "71kRpwy6xTeG2OXXkRJdkA",
+            "07OePkse2fcvU9wlVftNMl"
         );
     } else if ("indie".equals(genre)) {
-        // 인디
         artistIds = Arrays.asList(
-            "7c1HgFDe8ogy5NOZ1ANCJQ", // Car, the garden
-            "57okaLdCtv3nVBSn5otJkp", // HYUKOH
-            "6NdzNrBP8Jbhzp6h7yojht", // CHEEZE
-            "6WeDO4GynFmK4OxwkBzMW8", // The Black Skirts
-            "50Zu2bK9y5UAtD0jcqk5VX"  // OOHYO
+            "7c1HgFDe8ogy5NOZ1ANCJQ",
+            "57okaLdCtv3nVBSn5otJkp",
+            "6NdzNrBP8Jbhzp6h7yojht",
+            "6WeDO4GynFmK4OxwkBzMW8",
+            "50Zu2bK9y5UAtD0jcqk5VX"
         );
     }
 
-    // ===============================
-    // 3) 아티스트별 인기곡 가져오기
-    // ===============================
+    // [4] 아티스트별 top-tracks 호출해서 Song 리스트 만들기 (JSONObject / JSONArray로 파싱)
     class Song {
         String title, artist, img;
         int popularity;
@@ -145,7 +130,6 @@
                 JSONObject obj = new JSONObject(sb.toString());
                 JSONArray tracks = obj.getJSONArray("tracks");
 
-                // 이 아티스트에서 인기 상위 3곡 정도만 후보에 넣기
                 List<Song> temp = new ArrayList<>();
 
                 for (int i = 0; i < tracks.length(); i++) {
@@ -161,47 +145,37 @@
                             : "https://via.placeholder.com/60";
 
                     int pop = t.optInt("popularity", 0);
-
                     temp.add(new Song(title, artistName, img, pop));
                 }
 
-                // 인기순 정렬 후 상위 3곡만 추림
-                temp.sort(new Comparator<Song>() {
-                    public int compare(Song a, Song b) {
-                        return b.popularity - a.popularity;
-                    }
-                });
+                // 아티스트 내부에서 인기순 정렬 후 상위 3곡만 사용
+                temp.sort((a,b) -> b.popularity - a.popularity);
 
                 int limit = Math.min(3, temp.size());
-                for (int i = 0; i < limit; i++) {
-                    songList.add(temp.get(i));
-                }
+                for (int i = 0; i < limit; i++) songList.add(temp.get(i));
 
-            } catch (Exception ignore) {
-                // 한 아티스트에서 실패해도 전체는 계속 가도록
-            }
+            } catch (Exception ignore) {}
         }
     }
 
-    // ===============================
-    // 4) 전체 곡 인기순 정렬 + 10곡만 선택
-    // ===============================
+    // [5] 전체 곡 인기순 정렬 후 Top 10만 남기기 (List.sort + subList)
     if (!songList.isEmpty()) {
-        songList.sort(new Comparator<Song>() {
-            public int compare(Song a, Song b) {
-                return b.popularity - a.popularity;
-            }
-        });
-
-        if (songList.size() > 10) {
-            songList = new ArrayList<Song>(songList.subList(0, 10));
-        }
+        songList.sort((a,b) -> b.popularity - a.popularity);
+        if (songList.size() > 10)
+            songList = new ArrayList<>(songList.subList(0,10));
     } else {
         songList.add(new Song("데이터 없음", "없음", "https://via.placeholder.com/60", 0));
     }
 
     String nowTitle  = songList.get(0).title;
     String nowArtist = songList.get(0).artist;
+
+    // [6] 오른쪽에 뿌릴 테스트용 플레이리스트 리스트 (index.jsp랑 맞추기용)
+    class Playlist { String name; Playlist(String n){name=n;} }
+    java.util.List<Playlist> playlistList = new java.util.ArrayList<>();
+    playlistList.add(new Playlist("플레이리스트1"));
+    playlistList.add(new Playlist("플레이리스트2"));
+    playlistList.add(new Playlist("플레이리스트3"));
 %>
 
 <!DOCTYPE html>
@@ -209,83 +183,134 @@
 <head>
     <meta charset="UTF-8">
     <title>TomaToma - 인기차트</title>
+
+    <jsp:include page="../include/header.jsp">
+        <jsp:param name="page" value="popular"/>
+    </jsp:include>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/css/toma.css">
+
     <style>
         .song-img {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             border-radius: 6px;
             object-fit: cover;
         }
     </style>
-</head>
 
+</head>
 <body>
 
-<jsp:include page="../include/header.jsp">
-    <jsp:param name="page" value="popular"/>
-</jsp:include>
-
 <div class="container my-4" style="max-width:1200px;">
+    <div class="row">
 
-    <h4 class="fw-bold mb-3">🔥 <%= titleText %></h4>
+        <!-- 왼쪽: 장르 버튼 + 차트 테이블 -->
+        <div class="col-md-9">
 
-    <!-- 장르 버튼 -->
-    <div class="mb-3 d-flex align-items-center">
-       
-        <div class="btn-group">
-            <a href="chart_popular.jsp?genre=kpop"
-               class="btn <%= "kpop".equals(genre) ? "btn-main" : "btn-outline-danger" %>">K-POP</a>
-            <a href="chart_popular.jsp?genre=rap"
-               class="btn <%= "rap".equals(genre) ? "btn-main" : "btn-outline-danger" %>">랩 / 힙합</a>
-            <a href="chart_popular.jsp?genre=ballad"
-               class="btn <%= "ballad".equals(genre) ? "btn-main" : "btn-outline-danger" %>">발라드</a>
-            <a href="chart_popular.jsp?genre=band"
-               class="btn <%= "band".equals(genre) ? "btn-main" : "btn-outline-danger" %>">밴드</a>
-            <a href="chart_popular.jsp?genre=indie"
-               class="btn <%= "indie".equals(genre) ? "btn-main" : "btn-outline-danger" %>">인디</a>
+            <h4 class="fw-bold mb-3"><%= titleText %></h4>
+
+            <!-- 장르 버튼 -->
+            <div class="mb-3 d-flex align-items-center">
+                <div class="btn-group">
+                    <a href="chart_popular.jsp?genre=kpop" class="btn <%= "kpop".equals(genre) ? "btn-main" : "btn-outline-danger" %>">K-POP</a>
+                    <a href="chart_popular.jsp?genre=rap" class="btn <%= "rap".equals(genre) ? "btn-main" : "btn-outline-danger" %>">랩/힙합</a>
+                    <a href="chart_popular.jsp?genre=ballad" class="btn <%= "ballad".equals(genre) ? "btn-main" : "btn-outline-danger" %>">발라드</a>
+                    <a href="chart_popular.jsp?genre=band" class="btn <%= "band".equals(genre) ? "btn-main" : "btn-outline-danger" %>">밴드</a>
+                    <a href="chart_popular.jsp?genre=indie" class="btn <%= "indie".equals(genre) ? "btn-main" : "btn-outline-danger" %>">인디</a>
+                </div>
+            </div>
+
+            <!-- 표 -->
+            <table class="table table-hover align-middle">
+                <thead class="table-danger">
+                <tr>
+                    <th>#</th>
+                    <th>앨범</th>
+                    <th>곡명</th>
+                    <th>아티스트</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                    int idx = 1;
+                    for (Song s : songList) {
+                %>
+                <tr>
+                    <td><%= idx++ %></td>
+                    <td><img src="<%= s.img %>" class="song-img"></td>
+                    <td><%= s.title %></td>
+                    <td><%= s.artist %></td>
+                    <td><button class="btn btn-main btn-sm">▶</button></td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+
         </div>
-    </div>
 
-    <!-- 차트 테이블 -->
-    <table class="table table-hover align-middle">
-        <thead class="table-danger">
-        <tr>
-            <th>#</th>
-            <th>앨범</th>
-            <th>곡명</th>
-            <th>아티스트</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <%
-            int idx = 1;
-            for (Song s : songList) {
-        %>
-        <tr>
-            <td><%= idx++ %></td>
-            <td><img src="<%= s.img %>" class="song-img"></td>
-            <td><%= s.title %></td>
-            <td><%= s.artist %></td>
-            <td><button class="btn btn-main btn-sm">▶</button></td>
-        </tr>
-        <% } %>
-        </tbody>
-    </table>
+        <!-- 오른쪽: 로그인 박스 + 플레이리스트 -->
+        <div class="col-md-3">
+
+            <%
+                Integer userId = (Integer) session.getAttribute("user_id");
+                String username2 = (String) session.getAttribute("username");
+            %>
+
+            <% if (userId == null) { %>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <p class="text-muted small mb-2">로그인하고 기능을 이용해보세요!</p>
+                        <a href="login.jsp" class="btn btn-main w-100 mb-2">로그인</a>
+                        <a href="join.jsp" class="d-block small text-muted">회원가입</a>
+                    </div>
+                </div>
+
+            <% } else { %>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <h6 class="fw-bold mb-1"><%= username2 %> 님</h6>
+                        <p class="small text-muted mb-3">환영합니다!</p>
+                        <a href="mypage.jsp" class="btn btn-main w-100 mb-2">마이페이지</a>
+                        <a href="logout.jsp" class="d-block small text-muted">로그아웃</a>
+                    </div>
+                </div>
+
+            <% } %>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="playlist-header">
+                        <h6 class="fw-bold mb-3">나의 플레이리스트</h6>
+                        <button class="btn btn-sm btn-outline-danger">＋</button>
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+                        <% for(int i=0; i<playlistList.size(); i++){ %>
+                            <li class="list-group-item"><%= playlistList.get(i).name %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- 하단 플레이어 -->
+<!-- 하단 플레이어: 지금 1위 곡(nowTitle, nowArtist) 간단히 표시 -->
 <nav class="navbar fixed-bottom player-bar">
-    <div class="container d-flex justify-content-between align-items-center">
-        <span class="text-dark">
-            재생 중: <b><%= nowTitle %></b> - <%= nowArtist %>
-        </span>
-        <div>
-            <button class="btn btn-outline-danger btn-sm">⏮</button>
-            <button class="btn btn-outline-danger btn-sm">▶</button>
-            <button class="btn btn-outline-danger btn-sm">⏭</button>
+    <div class="container" style="max-width:1200px;">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <span class="text-dark">재생 중: <b><%= nowTitle %></b> - <%= nowArtist %></span>
+            <div>
+                <button class="btn btn-outline-danger btn-sm">⏮</button>
+                <button class="btn btn-outline-danger btn-sm">▶</button>
+                <button class="btn btn-outline-danger btn-sm">⏭</button>
+            </div>
         </div>
     </div>
 </nav>
